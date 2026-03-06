@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
+             x:Class="DotNetStudyAssistant.Views.DashboardPage"
+             x:DataType="vm:DashboardViewModel"
+             Title="Home">
+
+    <RefreshView Command="{Binding LoadCommand}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="0">
+
+                <!-- Header -->
+                <Label Text="DotNet Study Assistant"
+                       Style="{StaticResource Headline}"
+                       Margin="0,8,0,4"/>
+                <Label Text="C# Interview Preparation"
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                       Margin="0,0,0,24"/>
+
+                <!-- Readiness Score Card -->
+                <Border StrokeShape="RoundRectangle 12" Padding="20" Margin="0,0,0,16"
+                        BackgroundColor="{StaticResource Primary}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Interview Readiness"
+                               FontSize="13" TextColor="#DFD8F7"/>
+                        <Label Text="{Binding ReadinessScore, StringFormat='{0:F0}%'}"
+                               FontSize="48" FontFamily="OpenSansSemibold"
+                               TextColor="White"/>
+                        <ProgressBar Progress="{Binding ReadinessScore, Converter={StaticResource PercentToProgressConverter}}"
+                                     ProgressColor="White"
+                                     BackgroundColor="#5A3AD4"
+                                     HeightRequest="6"/>
+                        <Label Text="Target: Senior Developer"
+                               FontSize="12" TextColor="#DFD8F7"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Stats Row -->
+                <Grid ColumnDefinitions="*,*,*" Margin="0,0,0,20" ColumnSpacing="12">
+                    <!-- Questions Answered -->
+                    <Border Grid.Column="0" StrokeShape="RoundRectangle 10" Padding="12">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding QuestionsAnswered}" Style="{StaticResource StatValue}"/>
+                            <Label Text="Questions" Style="{StaticResource StatCaption}"/>
+                        </VerticalStackLayout>
+                    </Border>
+                    <!-- Topics Started -->
+                    <Border Grid.Column="1" StrokeShape="RoundRectangle 10" Padding="12">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding TopicsStarted}" Style="{StaticResource StatValue}"/>
+                            <Label Text="Topics" Style="{StaticResource StatCaption}"/>
+                        </VerticalStackLayout>
+                    </Border>
+                    <!-- Days active placeholder -->
+                    <Border Grid.Column="2" StrokeShape="RoundRectangle 10" Padding="12">
+                        <VerticalStackLayout>
+                            <Label Text="1" Style="{StaticResource StatValue}"/>
+                            <Label Text="Days Active" Style="{StaticResource StatCaption}"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Weakest Areas -->
+                <Label Text="Focus Areas" Style="{StaticResource SectionHeader}"/>
+
+                <CollectionView ItemsSource="{Binding WeakestAreas}" HeightRequest="160">
+                    <CollectionView.EmptyView>
+                        <Label Text="Keep practising — weak areas will appear here."
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                               HorizontalTextAlignment="Center" Margin="0,16"/>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TopicWithProgress">
+                            <Border Style="{StaticResource OptionCard}" Margin="0,4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                        <Label Text="{Binding Topic.Name}"
+                                               FontFamily="OpenSansSemibold" FontSize="14"/>
+                                        <ProgressBar Progress="{Binding Mastery, Converter={StaticResource PercentToProgressConverter}}"
+                                                     Style="{StaticResource MasteryBar}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1" Text="{Binding MasteryLabel}"
+                                           FontFamily="OpenSansSemibold" FontSize="14"
+                                           TextColor="{StaticResource Primary}"
+                                           VerticalOptions="Center" Margin="12,0,0,0"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- CTAs -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,20,0,32">
+                    <Button Grid.Column="0" Text="Practice Now"
+                            Command="{Binding GoToPracticeCommand}"/>
+                    <Button Grid.Column="1" Text="Quick Quiz"
+                            Command="{Binding QuickQuizCommand}"
+                            BackgroundColor="{StaticResource Tertiary}"/>
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

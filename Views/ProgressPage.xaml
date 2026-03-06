@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
+             xmlns:m="clr-namespace:DotNetStudyAssistant.Models"
+             x:Class="DotNetStudyAssistant.Views.ProgressPage"
+             x:DataType="vm:ProgressViewModel"
+             Title="Progress">
+
+    <RefreshView Command="{Binding LoadCommand}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="0">
+
+                <!-- Readiness card -->
+                <Border StrokeShape="RoundRectangle 12" Padding="20" Margin="0,0,0,20"
+                        BackgroundColor="{StaticResource Primary}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding ReadinessLabel}"
+                               FontFamily="OpenSansSemibold" FontSize="16"
+                               TextColor="White"/>
+                        <ProgressBar Progress="{Binding OverallReadiness, Converter={StaticResource PercentToProgressConverter}}"
+                                     ProgressColor="White" BackgroundColor="#5A3AD4" HeightRequest="8"/>
+                        <!-- Target level selector -->
+                        <Picker Title="Target role" SelectedItem="{Binding TargetLevel}"
+                                ItemsSource="{Binding Levels}"
+                                TextColor="White" TitleColor="#DFD8F7"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Needs work -->
+                <Label Text="Needs Work" Style="{StaticResource SectionHeader}"
+                       IsVisible="{Binding NeedsWork.Count, Converter={StaticResource IntToBoolConverter}}"/>
+                <CollectionView ItemsSource="{Binding NeedsWork}"
+                                IsVisible="{Binding NeedsWork.Count, Converter={StaticResource IntToBoolConverter}}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TopicMastery">
+                            <Border Style="{StaticResource OptionCard}" Stroke="{StaticResource WrongRedBrush}">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Topic.Name}"
+                                           FontFamily="OpenSansSemibold" FontSize="14"/>
+                                    <Label Grid.Row="0" Grid.Column="1"
+                                           Text="{Binding MasteryLabel}"
+                                           FontFamily="OpenSansSemibold"
+                                           TextColor="{StaticResource WrongRed}"/>
+                                    <ProgressBar Grid.Row="1" Grid.ColumnSpan="2"
+                                                 Progress="{Binding MasteryProgress}"
+                                                 ProgressColor="{StaticResource WrongRed}"
+                                                 Style="{StaticResource MasteryBar}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- All topics mastery -->
+                <Label Text="Topic Mastery" Style="{StaticResource SectionHeader}"/>
+                <CollectionView ItemsSource="{Binding TopicMasteries}">
+                    <CollectionView.EmptyView>
+                        <Label Text="Start practising to see your progress here."
+                               FontSize="13" HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                               Margin="0,12"/>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TopicMastery">
+                            <Border Style="{StaticResource OptionCard}">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="6">
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Topic.Name}"
+                                           FontFamily="OpenSansSemibold" FontSize="14"/>
+                                    <Label Grid.Row="0" Grid.Column="1"
+                                           Text="{Binding MasteryLabel}"
+                                           FontFamily="OpenSansSemibold"
+                                           TextColor="{StaticResource Primary}"/>
+                                    <ProgressBar Grid.Row="1" Grid.ColumnSpan="2"
+                                                 Progress="{Binding MasteryProgress}"
+                                                 Style="{StaticResource MasteryBar}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Recent sessions -->
+                <Label Text="Recent Sessions" Style="{StaticResource SectionHeader}"/>
+                <CollectionView ItemsSource="{Binding RecentSessions}" Margin="0,0,0,32">
+                    <CollectionView.EmptyView>
+                        <Label Text="No sessions yet."
+                               FontSize="13" HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"/>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="m:QuizSession">
+                            <Border Style="{StaticResource OptionCard}">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                        <Label Text="{Binding StartTime, StringFormat='{0:MMM d, yyyy  HH:mm}'}"
+                                               FontSize="13"/>
+                                        <Label Text="{Binding TotalQuestions, StringFormat='{0} questions'}"
+                                               FontSize="12"
+                                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding ScorePercent, StringFormat='{0:F0}%'}"
+                                           FontFamily="OpenSansSemibold"
+                                           TextColor="{StaticResource Primary}"
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

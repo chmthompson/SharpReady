@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="DotNetStudyAssistant.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:DotNetStudyAssistant.Views"
+    Title="DotNetStudyAssistant">
+
+    <TabBar>
+        <ShellContent
+            Title="Home"
+            Icon="home.png"
+            ContentTemplate="{DataTemplate views:DashboardPage}"
+            Route="Home" />
+
+        <ShellContent
+            Title="Practice"
+            Icon="book.png"
+            ContentTemplate="{DataTemplate views:TopicsPage}"
+            Route="Practice" />
+
+        <ShellContent
+            Title="Progress"
+            Icon="chart.png"
+            ContentTemplate="{DataTemplate views:ProgressPage}"
+            Route="Progress" />
+
+        <ShellContent
+            Title="Settings"
+            Icon="settings.png"
+            ContentTemplate="{DataTemplate views:SettingsPage}"
+            Route="Settings" />
+    </TabBar>
+
+</Shell>

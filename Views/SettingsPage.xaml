@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
+             x:Class="DotNetStudyAssistant.Views.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="Settings">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="0">
+
+            <!-- Role -->
+            <Label Text="Career Goals" Style="{StaticResource SectionHeader}"/>
+            <Border StrokeShape="RoundRectangle 10" Padding="16" Margin="0,0,0,16">
+                <VerticalStackLayout Spacing="16">
+                    <Grid ColumnDefinitions="*,*">
+                        <Label Grid.Column="0" Text="Target role"
+                               FontSize="14" VerticalOptions="Center"/>
+                        <Picker Grid.Column="1" ItemsSource="{Binding Levels}"
+                                SelectedItem="{Binding TargetRole}" Title="Target role"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*">
+                        <Label Grid.Column="0" Text="Current level"
+                               FontSize="14" VerticalOptions="Center"/>
+                        <Picker Grid.Column="1" ItemsSource="{Binding Levels}"
+                                SelectedItem="{Binding CurrentLevel}" Title="Current level"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Quiz defaults -->
+            <Label Text="Quiz Defaults" Style="{StaticResource SectionHeader}"/>
+            <Border StrokeShape="RoundRectangle 10" Padding="16" Margin="0,0,0,16">
+                <VerticalStackLayout Spacing="16">
+                    <Grid ColumnDefinitions="*,*">
+                        <Label Grid.Column="0" Text="Questions per session"
+                               FontSize="14" VerticalOptions="Center"/>
+                        <Picker Grid.Column="1" ItemsSource="{Binding QuestionCounts}"
+                                SelectedItem="{Binding DefaultQuestionCount}" Title="Count"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Timer (60s per question)"
+                               FontSize="14" VerticalOptions="Center"/>
+                        <Switch Grid.Column="1" IsToggled="{Binding TimerEnabled}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*">
+                        <Label Grid.Column="0" Text="Default difficulty"
+                               FontSize="14" VerticalOptions="Center"/>
+                        <Picker Grid.Column="1" ItemsSource="{Binding Levels}"
+                                SelectedItem="{Binding DefaultDifficulty}" Title="Difficulty"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="Save Settings" Command="{Binding SaveCommand}" Margin="0,8,0,32"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

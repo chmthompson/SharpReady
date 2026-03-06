@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DotNetStudyAssistant.Views.ProfilePage"
+             Title="User Profile">
+
+    <VerticalStackLayout Padding="20" Spacing="15">
+        <Label
+            Text="User Profile"
+            FontSize="24"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="Center" />
+
+        <Frame BorderColor="#CCCCCC" CornerRadius="10" Padding="15">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Name" FontAttributes="Bold" />
+                <Label Text="Email" FontAttributes="Bold" />
+                <Label Text="Phone" FontAttributes="Bold" />
+            </VerticalStackLayout>
+        </Frame>
+
+        <Button
+            Text="Edit Profile"
+            HorizontalOptions="Fill"
+            Padding="10" />
+
+        <Button
+            Text="Go Back"
+            HorizontalOptions="Fill"
+            Padding="10"
+            Clicked="OnGoBackClicked"
+            BackgroundColor="#FF6B6B" />
+    </VerticalStackLayout>
+
+</ContentPage>

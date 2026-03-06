@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
+             xmlns:m="clr-namespace:DotNetStudyAssistant.Models"
+             xmlns:enums="clr-namespace:DotNetStudyAssistant.Models.Enums"
+             x:Class="DotNetStudyAssistant.Views.QuizPage"
+             x:DataType="vm:QuizViewModel"
+             Title="Quiz"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Header: progress + timer -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                <Label FontSize="13"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding CurrentNumber}"/>
+                            <Span Text=" of "/>
+                            <Span Text="{Binding TotalQuestions}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <ProgressBar Progress="{Binding Progress}" Style="{StaticResource MasteryBar}" HeightRequest="6"/>
+            </VerticalStackLayout>
+            <Border Grid.Column="1" StrokeShape="RoundRectangle 20" Padding="12,6" Margin="12,0,0,0"
+                    BackgroundColor="{StaticResource Secondary}"
+                    IsVisible="{Binding TimerEnabled}">
+                <Label Text="{Binding TimeRemaining, StringFormat='{0}s'}"
+                       FontFamily="OpenSansSemibold" FontSize="14"
+                       TextColor="{StaticResource Tertiary}"/>
+            </Border>
+        </Grid>
+
+        <!-- Question area -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="12">
+
+                <!-- Question text -->
+                <Label Text="{Binding CurrentQuestion.Text}"
+                       FontSize="16" LineHeight="1.5"
+                       FontFamily="OpenSansSemibold"/>
+
+                <!-- Code snippet (shown when present) -->
+                <Border StrokeShape="RoundRectangle 8"
+                        Padding="0"
+                        BackgroundColor="{StaticResource CodeBackground}"
+                        IsVisible="{Binding CurrentQuestion.CodeSnippet, Converter={StaticResource NotNullToBoolConverter}}">
+                    <Label Text="{Binding CurrentQuestion.CodeSnippet}"
+                           Style="{StaticResource CodeLabel}"/>
+                </Border>
+
+                <!-- Answer options -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding CurrentQuestion.Options}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Border Style="{StaticResource OptionCard}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:QuizViewModel}}, Path=SelectAnswerCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding .}" FontSize="14"/>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Explanation (shown after answer) -->
+                <Border StrokeShape="RoundRectangle 10" Padding="14"
+                        IsVisible="{Binding IsAnswerSubmitted}"
+                        BackgroundColor="{Binding IsCorrect, Converter={StaticResource BoolToExplanationBgConverter}}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{Binding IsCorrect, Converter={StaticResource BoolToResultLabelConverter}}"
+                               FontFamily="OpenSansSemibold" FontSize="14"
+                               TextColor="{Binding IsCorrect, Converter={StaticResource BoolToResultColorConverter}}"/>
+                        <Label Text="{Binding CurrentQuestion.Explanation}"
+                               FontSize="13" LineHeight="1.4"
+                               TextColor="{StaticResource Gray900}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Next button -->
+        <Button Grid.Row="2" Text="Next"
+                Command="{Binding NextCommand}"
+                IsVisible="{Binding IsAnswerSubmitted}"
+                Margin="0,12,0,0"/>
+
+    </Grid>
+</ContentPage>

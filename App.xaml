@@ -1,0 +1,46 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:DotNetStudyAssistant"
+             xmlns:conv="clr-namespace:DotNetStudyAssistant.Converters"
+             x:Class="DotNetStudyAssistant.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters -->
+            <conv:PercentToProgressConverter x:Key="PercentToProgressConverter"/>
+            <conv:NotNullToBoolConverter x:Key="NotNullToBoolConverter"/>
+            <conv:IntToBoolConverter x:Key="IntToBoolConverter"/>
+
+            <!-- Bool → Color: correct/incorrect answer feedback -->
+            <conv:BoolToColorConverter x:Key="BoolToResultColorConverter"
+                                       TrueColor="#2E7D32"
+                                       FalseColor="#C62828"/>
+
+            <!-- Bool → Color: explanation background -->
+            <conv:BoolToColorConverter x:Key="BoolToExplanationBgConverter"
+                                       TrueColor="#E8F5E9"
+                                       FalseColor="#FFEBEE"/>
+
+            <!-- Bool → Color: pass/fail result card -->
+            <conv:BoolToColorConverter x:Key="BoolToPassBgConverter"
+                                       TrueColor="#2E7D32"
+                                       FalseColor="#C62828"/>
+
+            <!-- Bool → String: result label -->
+            <conv:BoolToStringConverter x:Key="BoolToResultLabelConverter"
+                                        TrueValue="Correct!"
+                                        FalseValue="Incorrect"/>
+
+            <!-- Bool → String: pass label -->
+            <conv:BoolToStringConverter x:Key="BoolToPassLabelConverter"
+                                        TrueValue="Great work — you passed!"
+                                        FalseValue="Keep practising — you'll get there!"/>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

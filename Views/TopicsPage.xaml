@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
+             x:Class="DotNetStudyAssistant.Views.TopicsPage"
+             x:DataType="vm:TopicsViewModel"
+             Title="Practice">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Search -->
+        <SearchBar Grid.Row="0" Margin="16,12,16,0"
+                   Placeholder="Search topics..."
+                   Text="{Binding SearchText}"/>
+
+        <!-- Category filter chips -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" Margin="12,8" HorizontalScrollBarVisibility="Never">
+            <HorizontalStackLayout Spacing="0">
+                <Button Text="All" Margin="4,0" Padding="14,6"
+                        FontSize="13" CornerRadius="16"
+                        Command="{Binding ClearCategoryCommand}"/>
+                <Button Text="OOP" Margin="4,0" Padding="14,6"
+                        FontSize="13" CornerRadius="16"
+                        Command="{Binding SetCategoryCommand}" CommandParameter="OOP"/>
+                <Button Text="LINQ" Margin="4,0" Padding="14,6"
+                        FontSize="13" CornerRadius="16"
+                        Command="{Binding SetCategoryCommand}" CommandParameter="LINQ"/>
+                <Button Text="Async/Await" Margin="4,0" Padding="14,6"
+                        FontSize="13" CornerRadius="16"
+                        Command="{Binding SetCategoryCommand}" CommandParameter="AsyncAwait"/>
+                <Button Text="Patterns" Margin="4,0" Padding="14,6"
+                        FontSize="13" CornerRadius="16"
+                        Command="{Binding SetCategoryCommand}" CommandParameter="DesignPatterns"/>
+                <Button Text="Collections" Margin="4,0" Padding="14,6"
+                        FontSize="13" CornerRadius="16"
+                        Command="{Binding SetCategoryCommand}" CommandParameter="Collections"/>
+                <Button Text="Memory" Margin="4,0" Padding="14,6"
+                        FontSize="13" CornerRadius="16"
+                        Command="{Binding SetCategoryCommand}" CommandParameter="MemoryManagement"/>
+                <Button Text=".NET Features" Margin="4,0" Padding="14,6"
+                        FontSize="13" CornerRadius="16"
+                        Command="{Binding SetCategoryCommand}" CommandParameter="DotNetFeatures"/>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Topic list -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Topics}" Margin="16,0">
+            <CollectionView.EmptyView>
+                <Label Text="No topics found." HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                       Margin="0,40"/>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:TopicWithProgress">
+                    <Border Style="{StaticResource OptionCard}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TopicsViewModel}}, Path=SelectTopicCommand}"
+                                CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="{Binding Topic.Name}"
+                                   FontFamily="OpenSansSemibold" FontSize="15"/>
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding MasteryLabel}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{StaticResource Primary}" FontSize="15"/>
+                            <Label Grid.Row="1" Grid.ColumnSpan="2"
+                                   Text="{Binding Topic.Description}"
+                                   FontSize="12" LineBreakMode="TailTruncation" MaxLines="2"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"/>
+                            <ProgressBar Grid.Row="2" Grid.ColumnSpan="2"
+                                         Progress="{Binding Mastery, Converter={StaticResource PercentToProgressConverter}}"
+                                         Style="{StaticResource MasteryBar}"/>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

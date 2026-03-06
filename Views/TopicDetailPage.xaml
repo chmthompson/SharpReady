@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
+             xmlns:m="clr-namespace:DotNetStudyAssistant.Models"
+             x:Class="DotNetStudyAssistant.Views.TopicDetailPage"
+             x:DataType="vm:TopicDetailViewModel"
+             Title="{Binding Topic.Name}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="0">
+
+            <!-- Mastery card -->
+            <Border StrokeShape="RoundRectangle 12" Padding="20" Margin="0,0,0,20"
+                    BackgroundColor="{StaticResource Primary}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Grid.Column="0" Spacing="6">
+                        <Label Text="Your Mastery" FontSize="13" TextColor="#DFD8F7"/>
+                        <ProgressBar Progress="{Binding Mastery, Converter={StaticResource PercentToProgressConverter}}"
+                                     ProgressColor="White" BackgroundColor="#5A3AD4" HeightRequest="8"/>
+                        <Label Text="{Binding Topic.Description}" FontSize="12" TextColor="#DFD8F7"
+                               LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                    <Label Grid.Column="1" Text="{Binding Mastery, StringFormat='{0:F0}%'}"
+                           FontSize="36" FontFamily="OpenSansSemibold"
+                           TextColor="White" VerticalOptions="Center" Margin="16,0,0,0"/>
+                </Grid>
+            </Border>
+
+            <!-- Quiz setup -->
+            <Label Text="Start a Practice Session" Style="{StaticResource SectionHeader}"/>
+            <Border StrokeShape="RoundRectangle 10" Padding="16" Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="16">
+                    <!-- Questions count -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Number of questions"
+                               FontSize="14" VerticalOptions="Center"/>
+                        <Picker Grid.Column="1" Title="Count"
+                                SelectedItem="{Binding DefaultCount}" WidthRequest="80">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:Int32}">
+                                    <x:Int32>5</x:Int32>
+                                    <x:Int32>10</x:Int32>
+                                    <x:Int32>15</x:Int32>
+                                    <x:Int32>20</x:Int32>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                    </Grid>
+                    <!-- Timer toggle -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" Text="Timer (60s per question)"
+                               FontSize="14" VerticalOptions="Center"/>
+                        <Switch Grid.Column="1" IsToggled="{Binding TimerEnabled}"/>
+                    </Grid>
+                    <!-- Start button -->
+                    <Button Text="Start Quiz"
+                            Command="{Binding StartQuizCommand}"
+                            Margin="0,4,0,0"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Recent attempts -->
+            <Label Text="Recent Attempts" Style="{StaticResource SectionHeader}"/>
+            <CollectionView ItemsSource="{Binding RecentSessions}">
+                <CollectionView.EmptyView>
+                    <Label Text="No attempts yet — start your first quiz!"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                           HorizontalTextAlignment="Center" Margin="0,8"/>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="m:QuizSession">
+                        <Border Style="{StaticResource OptionCard}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding StartTime, StringFormat='{0:MMM d, yyyy}'}"
+                                           FontSize="13"/>
+                                    <Label Text="{Binding TotalQuestions, StringFormat='{0} questions'}"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"/>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1"
+                                       Text="{Binding ScorePercent, StringFormat='{0:F0}%'}"
+                                       FontFamily="OpenSansSemibold"
+                                       TextColor="{StaticResource Primary}"
+                                       VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
