@@ -20,11 +20,17 @@ public class MockQuizService : IQuizService
 
     public Task<List<Question>> GetQuestionsAsync(int topicId, DifficultyLevel? difficulty = null, int count = 10)
     {
-        var query = _questions.Where(q => q.TopicId == topicId);
-        if (difficulty.HasValue)
-            query = query.Where(q => q.Difficulty == difficulty.Value);
+        var allForTopic = _questions.Where(q => q.TopicId == topicId).ToList();
+        IEnumerable<Question> pool = allForTopic;
 
-        var result = query.OrderBy(_ => Guid.NewGuid()).Take(count).ToList();
+        if (difficulty.HasValue)
+        {
+            var atLevel = allForTopic.Where(q => q.Difficulty == difficulty.Value).ToList();
+            // Fall back to all difficulties when not enough questions at the selected level
+            pool = atLevel.Count >= count ? atLevel : allForTopic;
+        }
+
+        var result = pool.OrderBy(_ => Guid.NewGuid()).Take(count).ToList();
         return Task.FromResult(result);
     }
 
@@ -326,5 +332,246 @@ public class MockQuizService : IQuizService
             Options = ["Type pattern only", "Switch expression with type patterns and when guards", "Tuple pattern", "Property pattern"],
             CorrectAnswer = "Switch expression with type patterns and when guards",
             Explanation = "This uses a switch expression (C# 8+) with type patterns (Circle c, Rectangle r) and a when guard clause (when c.Radius > 10). The discard pattern (_) acts as the default. Switch expressions are expressions that return a value, unlike switch statements." },
+
+        // ── OOP additional (TopicId = 1) ─────────────────────────────────────
+        new() { Id = 28, TopicId = 1, Difficulty = DifficultyLevel.Junior, Type = QuestionType.MultipleChoice,
+            Text = "What does the 'sealed' keyword do when applied to a class?",
+            Options = ["Makes all members private", "Prevents the class from being inherited", "Prevents instantiation", "Makes all members static"],
+            CorrectAnswer = "Prevents the class from being inherited",
+            Explanation = "'sealed' on a class means no other class can inherit from it. String is a well-known example of a sealed class. Use sealed when you want to prevent inheritance for security or performance reasons." },
+
+        new() { Id = 29, TopicId = 1, Difficulty = DifficultyLevel.Mid, Type = QuestionType.TrueFalse,
+            Text = "In C#, a class can implement multiple interfaces but inherit from only one base class.",
+            Options = ["True", "False"],
+            CorrectAnswer = "True",
+            Explanation = "C# supports single class inheritance but multiple interface implementation. This is by design — multiple inheritance of classes causes the diamond problem. Interfaces provide a clean way to compose behaviours without that ambiguity." },
+
+        new() { Id = 30, TopicId = 1, Difficulty = DifficultyLevel.Lead, Type = QuestionType.MultipleChoice,
+            Text = "What does the Dependency Inversion Principle (DIP) state?",
+            Options = [
+                "High-level modules should depend on low-level modules",
+                "High-level modules should not depend on low-level modules; both should depend on abstractions",
+                "Every class should depend on a single concrete implementation",
+                "Modules should be isolated and never depend on each other"
+            ],
+            CorrectAnswer = "High-level modules should not depend on low-level modules; both should depend on abstractions",
+            Explanation = "DIP states that high-level policy code should not import low-level detail code. Both should depend on abstractions (interfaces/abstract classes). This is the foundation of dependency injection — you inject an IRepository, not a SqlRepository." },
+
+        // ── LINQ additional (TopicId = 2) ────────────────────────────────────
+        new() { Id = 31, TopicId = 2, Difficulty = DifficultyLevel.Junior, Type = QuestionType.MultipleChoice,
+            Text = "What does the LINQ Select() operator do?",
+            Options = ["Filters elements based on a condition", "Projects each element into a new form", "Sorts elements ascending", "Groups elements by a key"],
+            CorrectAnswer = "Projects each element into a new form",
+            Explanation = "Select() is a projection operator — it transforms each element in a sequence using a selector function, similar to 'map' in functional programming. Example: users.Select(u => u.Name) returns an IEnumerable<string> of names." },
+
+        new() { Id = 32, TopicId = 2, Difficulty = DifficultyLevel.Junior, Type = QuestionType.MultipleChoice,
+            Text = "What is the difference between First() and FirstOrDefault() in LINQ?",
+            Options = [
+                "First() is faster",
+                "First() throws InvalidOperationException if no element is found; FirstOrDefault() returns the default value",
+                "FirstOrDefault() only works with nullable types",
+                "There is no difference"
+            ],
+            CorrectAnswer = "First() throws InvalidOperationException if no element is found; FirstOrDefault() returns the default value",
+            Explanation = "First() throws if the sequence is empty or no element matches the predicate. FirstOrDefault() returns default(T) instead — null for reference types, 0 for int, etc. Use FirstOrDefault() when an empty result is a valid scenario." },
+
+        new() { Id = 33, TopicId = 2, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "What does SelectMany() do differently from Select()?",
+            Options = [
+                "SelectMany is used for grouping",
+                "SelectMany flattens nested sequences into a single sequence",
+                "SelectMany filters while projecting",
+                "SelectMany projects to a single scalar value"
+            ],
+            CorrectAnswer = "SelectMany flattens nested sequences into a single sequence",
+            Explanation = "Select() returns IEnumerable<IEnumerable<T>> when projecting to a collection. SelectMany() flattens this into a single IEnumerable<T>. Example: orders.SelectMany(o => o.Items) yields all items across all orders in one flat sequence." },
+
+        new() { Id = 34, TopicId = 2, Difficulty = DifficultyLevel.Lead, Type = QuestionType.MultipleChoice,
+            Text = "What is an Expression Tree in LINQ and why does IQueryable use it?",
+            Options = [
+                "A binary tree sorting data by expression value",
+                "A data structure representing code as data, allowing LINQ providers to translate queries to SQL",
+                "A compiled lambda cache",
+                "A tree of LINQ operators for caching query results"
+            ],
+            CorrectAnswer = "A data structure representing code as data, allowing LINQ providers to translate queries to SQL",
+            Explanation = "Expression<Func<T, bool>> captures the structure of a lambda as an in-memory tree rather than compiling it to IL. IQueryable providers (like EF Core) walk this tree and translate it to SQL. This is why LINQ-to-SQL can push Where() predicates to the database — the expression is inspectable at runtime." },
+
+        // ── Async additional (TopicId = 3) ───────────────────────────────────
+        new() { Id = 35, TopicId = 3, Difficulty = DifficultyLevel.Junior, Type = QuestionType.MultipleChoice,
+            Text = "What does the 'await' keyword do in C#?",
+            Options = [
+                "It blocks the thread until the task completes",
+                "It asynchronously waits for a Task to complete, freeing the thread in the meantime",
+                "It creates a new Task on a background thread",
+                "It cancels a running Task"
+            ],
+            CorrectAnswer = "It asynchronously waits for a Task to complete, freeing the thread in the meantime",
+            Explanation = "'await' suspends the current async method until the awaited Task completes, but it does NOT block the thread. The thread is released back to the thread pool (or UI loop) and the method resumes when the task finishes, typically on the original synchronisation context." },
+
+        new() { Id = 36, TopicId = 3, Difficulty = DifficultyLevel.Mid, Type = QuestionType.MultipleChoice,
+            Text = "What is CancellationToken used for?",
+            Options = [
+                "To catch async exceptions",
+                "To signal that an operation should be cancelled cooperatively",
+                "To limit the number of concurrent tasks",
+                "To delay task execution"
+            ],
+            CorrectAnswer = "To signal that an operation should be cancelled cooperatively",
+            Explanation = "CancellationToken provides a cooperative cancellation mechanism. A CancellationTokenSource creates the token; calling .Cancel() signals cancellation. The running operation checks the token (token.ThrowIfCancellationRequested()) and stops gracefully. Pass tokens to all async APIs for responsive cancellation." },
+
+        new() { Id = 37, TopicId = 3, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "What is the difference between Task.WhenAll and Task.WhenAny?",
+            Options = [
+                "WhenAll runs tasks sequentially; WhenAny runs them in parallel",
+                "WhenAll completes when all tasks finish; WhenAny completes when the first task finishes",
+                "WhenAny cancels remaining tasks automatically",
+                "There is no functional difference"
+            ],
+            CorrectAnswer = "WhenAll completes when all tasks finish; WhenAny completes when the first task finishes",
+            Explanation = "Task.WhenAll(tasks) returns a Task that completes when every task in the collection has completed (or any throws). Task.WhenAny(tasks) returns a Task<Task> that completes as soon as the first task finishes. WhenAny is useful for timeouts: Task.WhenAny(actualTask, Task.Delay(timeout))." },
+
+        new() { Id = 38, TopicId = 3, Difficulty = DifficultyLevel.Lead, Type = QuestionType.MultipleChoice,
+            Text = "What is SemaphoreSlim used for in async code?",
+            Options = [
+                "To cancel tasks cooperatively",
+                "To limit the number of tasks that can access a resource concurrently",
+                "To synchronise the UI thread with background tasks",
+                "To replace locks in all async scenarios"
+            ],
+            CorrectAnswer = "To limit the number of tasks that can access a resource concurrently",
+            Explanation = "SemaphoreSlim(n) allows at most n concurrent entrants. It has an async-friendly WaitAsync() method that doesn't block a thread. Use it to cap concurrency — e.g., SemaphoreSlim(4) limits parallel HTTP requests to 4, preventing server overload or rate-limit violations." },
+
+        // ── Design Patterns additional (TopicId = 4) ─────────────────────────
+        new() { Id = 39, TopicId = 4, Difficulty = DifficultyLevel.Junior, Type = QuestionType.MultipleChoice,
+            Text = "What does the Factory Method pattern do?",
+            Options = [
+                "Restricts a class to one instance",
+                "Defines an interface for creating an object, letting subclasses decide which class to instantiate",
+                "Provides a simplified interface to a complex subsystem",
+                "Converts one interface into another"
+            ],
+            CorrectAnswer = "Defines an interface for creating an object, letting subclasses decide which class to instantiate",
+            Explanation = "Factory Method defines a creator method in a base class that subclasses override to instantiate specific types. Callers use the factory method rather than 'new', decoupling them from concrete implementations. ILoggerFactory in .NET is a real-world example." },
+
+        new() { Id = 40, TopicId = 4, Difficulty = DifficultyLevel.Mid, Type = QuestionType.MultipleChoice,
+            Text = "What problem does the Observer pattern solve?",
+            Options = [
+                "Creating families of related objects",
+                "Notifying multiple objects when the state of another object changes",
+                "Restricting access to a resource",
+                "Converting between incompatible interfaces"
+            ],
+            CorrectAnswer = "Notifying multiple objects when the state of another object changes",
+            Explanation = "The Observer pattern defines a one-to-many dependency: when a subject changes state, all registered observers are notified automatically. C# events and INotifyPropertyChanged (used in MVVM) are built-in implementations of the Observer pattern." },
+
+        new() { Id = 41, TopicId = 4, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "What is the Strategy pattern?",
+            Options = [
+                "A pattern that caches strategy objects for reuse",
+                "Defines a family of algorithms, encapsulates each, and makes them interchangeable at runtime",
+                "A pattern for building complex objects step by step",
+                "A pattern that routes requests to handler chains"
+            ],
+            CorrectAnswer = "Defines a family of algorithms, encapsulates each, and makes them interchangeable at runtime",
+            Explanation = "Strategy lets you swap algorithms (sorting, payment processing, compression) without changing the client code. The client holds a reference to a strategy interface and delegates the algorithm to whichever implementation is injected. This follows the Open/Closed Principle." },
+
+        // ── Collections additional (TopicId = 5) ─────────────────────────────
+        new() { Id = 42, TopicId = 5, Difficulty = DifficultyLevel.Mid, Type = QuestionType.MultipleChoice,
+            Text = "What is the main difference between Stack<T> and Queue<T>?",
+            Options = [
+                "Stack is thread-safe; Queue is not",
+                "Stack is LIFO (last in, first out); Queue is FIFO (first in, first out)",
+                "Queue has O(1) access by index; Stack does not",
+                "Stack can only hold value types"
+            ],
+            CorrectAnswer = "Stack is LIFO (last in, first out); Queue is FIFO (first in, first out)",
+            Explanation = "Stack<T> uses Push/Pop — the last item added is the first removed (LIFO). Queue<T> uses Enqueue/Dequeue — the first item added is the first removed (FIFO). Use Stack for undo/redo or call-stack emulation; use Queue for work queues and breadth-first traversal." },
+
+        new() { Id = 43, TopicId = 5, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "When should you use ConcurrentDictionary<TKey, TValue> instead of Dictionary<TKey, TValue>?",
+            Options = [
+                "When you need keys to be sorted",
+                "When multiple threads read and write the dictionary concurrently",
+                "When the dictionary needs to persist to disk",
+                "When the number of entries exceeds 10,000"
+            ],
+            CorrectAnswer = "When multiple threads read and write the dictionary concurrently",
+            Explanation = "Dictionary<TKey, TValue> is not thread-safe — concurrent reads are fine, but concurrent writes (or mixed read/write) require external locking. ConcurrentDictionary uses fine-grained locking internally and provides atomic operations like AddOrUpdate and GetOrAdd, avoiding manual lock management." },
+
+        new() { Id = 44, TopicId = 5, Difficulty = DifficultyLevel.Senior, Type = QuestionType.TrueFalse,
+            Text = "SortedDictionary<TKey, TValue> maintains keys in sorted order and provides O(log n) lookup.",
+            Options = ["True", "False"],
+            CorrectAnswer = "True",
+            Explanation = "SortedDictionary uses a red-black tree internally, so keys are always in sorted order and lookup/insert/delete are O(log n). In contrast, Dictionary uses a hash table with O(1) average lookup but no ordering guarantee." },
+
+        // ── Memory additional (TopicId = 6) ──────────────────────────────────
+        new() { Id = 45, TopicId = 6, Difficulty = DifficultyLevel.Junior, Type = QuestionType.TrueFalse,
+            Text = "Value types (like int and struct) are always allocated on the stack in C#.",
+            Options = ["True", "False"],
+            CorrectAnswer = "False",
+            Explanation = "Value types live on the stack when declared as local variables, but they live on the heap when they are fields of a class, captured in a closure, or boxed. The runtime decides allocation — you cannot guarantee stack allocation from C# code." },
+
+        new() { Id = 46, TopicId = 6, Difficulty = DifficultyLevel.Mid, Type = QuestionType.MultipleChoice,
+            Text = "What is a finalizer and when should you implement one?",
+            Options = [
+                "A method called after construction to validate state",
+                "A destructor (~ClassName) called by the GC before reclaiming memory, used to release unmanaged resources when Dispose was not called",
+                "A method that seals a class from further modification",
+                "An event raised when an object goes out of scope"
+            ],
+            CorrectAnswer = "A destructor (~ClassName) called by the GC before reclaiming memory, used to release unmanaged resources when Dispose was not called",
+            Explanation = "Finalizers (~ClassName) are called by the GC as a safety net when Dispose() was not called. They delay GC collection by one cycle and add overhead, so implement them only when directly holding unmanaged handles. The recommended pattern: implement IDisposable, call GC.SuppressFinalize(this) in Dispose(), and implement the finalizer as a fallback." },
+
+        new() { Id = 47, TopicId = 6, Difficulty = DifficultyLevel.Lead, Type = QuestionType.MultipleChoice,
+            Text = "What is the Large Object Heap (LOH) and why does it matter for performance?",
+            Options = [
+                "A separate heap for objects used by the OS kernel",
+                "A heap for objects ≥ 85,000 bytes that is collected less frequently and never compacted by default",
+                "A heap that stores only string objects",
+                "A reserved memory area that bypasses garbage collection"
+            ],
+            CorrectAnswer = "A heap for objects ≥ 85,000 bytes that is collected less frequently and never compacted by default",
+            Explanation = "The LOH holds large allocations (≥ 85KB, 85,000 bytes for most types). Unlike the small-object heap, the LOH is not compacted during GC by default, leading to fragmentation over time. LOH collections are expensive (Gen 2). Mitigation: use ArrayPool<T>, Memory<T>/Span<T>, or set GCSettings.LargeObjectHeapCompactionMode." },
+
+        // ── .NET Features additional (TopicId = 7) ───────────────────────────
+        new() { Id = 48, TopicId = 7, Difficulty = DifficultyLevel.Junior, Type = QuestionType.TrueFalse,
+            Text = "Global using directives (global using) apply to all files in the project without needing to repeat the using statement.",
+            Options = ["True", "False"],
+            CorrectAnswer = "True",
+            Explanation = "Introduced in C# 10, 'global using SomeNamespace;' in any file makes that namespace available throughout the project. .NET 6+ projects often put these in a GlobalUsings.cs file. The SDK automatically adds common ones (System, System.Collections.Generic, etc.) via implicit global usings." },
+
+        new() { Id = 49, TopicId = 7, Difficulty = DifficultyLevel.Mid, Type = QuestionType.MultipleChoice,
+            Text = "What are init-only setters (the 'init' accessor) in C# 9?",
+            Options = [
+                "Properties that can only be set inside the constructor",
+                "Properties that can be set during object initialisation (construction time) but become read-only afterwards",
+                "Properties that are initialised lazily on first access",
+                "Properties that can only be set from within the same assembly"
+            ],
+            CorrectAnswer = "Properties that can be set during object initialisation (construction time) but become read-only afterwards",
+            Explanation = "'init' is like 'set' but only callable during object initialisation — in constructors and object initialisers. After the object is fully constructed, the property is effectively read-only. This allows immutable-like types that still support object initialiser syntax: new Person { Name = \"Alice\" }." },
+
+        new() { Id = 50, TopicId = 7, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "What does the 'required' modifier on a property enforce in C# 11?",
+            Options = [
+                "The property must be set in the class constructor only",
+                "Callers must provide a value for the property in object initialisers or constructors",
+                "The property cannot be null at runtime",
+                "The property is validated against a regex pattern"
+            ],
+            CorrectAnswer = "Callers must provide a value for the property in object initialisers or constructors",
+            Explanation = "'required' is a compile-time enforcement that callers must initialise the property. Combined with init, it replaces constructor overloads for mandatory-field data classes: 'public required string Name { get; init; }'. Forgetting to set a required member is a compile error, not a runtime surprise." },
+
+        new() { Id = 51, TopicId = 7, Difficulty = DifficultyLevel.Lead, Type = QuestionType.MultipleChoice,
+            Text = "What is the primary benefit of primary constructors in C# 12 for classes?",
+            Options = [
+                "They allow multiple constructors to be declared on a single line",
+                "They make constructor parameters available throughout the class body without manually assigning to fields",
+                "They prevent derived classes from adding additional constructors",
+                "They automatically generate IDisposable for the class"
+            ],
+            CorrectAnswer = "They make constructor parameters available throughout the class body without manually assigning to fields",
+            Explanation = "Primary constructors (C# 12 for classes/structs, C# 9 for records) declare parameters in the class header. These parameters are captured and available in all instance methods and property initialisers, eliminating the boilerplate of manually assigning constructor parameters to private fields." },
     ];
 }

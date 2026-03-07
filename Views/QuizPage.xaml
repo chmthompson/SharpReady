@@ -2,8 +2,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
-             xmlns:m="clr-namespace:DotNetStudyAssistant.Models"
-             xmlns:enums="clr-namespace:DotNetStudyAssistant.Models.Enums"
              x:Class="DotNetStudyAssistant.Views.QuizPage"
              x:DataType="vm:QuizViewModel"
              Title="Quiz"
@@ -54,32 +52,49 @@
                 </Border>
 
                 <!-- Answer options -->
-                <VerticalStackLayout BindableLayout.ItemsSource="{Binding CurrentQuestion.Options}">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding DisplayOptions}" Spacing="8">
                     <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="x:String">
-                            <Border Style="{StaticResource OptionCard}">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:QuizViewModel}}, Path=SelectAnswerCommand}"
-                                        CommandParameter="{Binding .}"/>
-                                </Border.GestureRecognizers>
-                                <Label Text="{Binding .}" FontSize="14"/>
-                            </Border>
+                        <DataTemplate x:DataType="vm:QuizOptionViewModel">
+                            <Grid>
+                                <Border Style="{StaticResource OptionCard}">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsWrongSelection}" Value="True">
+                                            <Setter Property="Stroke" Value="#C62828"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:QuizViewModel}}, Path=SelectAnswerCommand}"
+                                            CommandParameter="{Binding Text}"/>
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding Text}" FontSize="14"/>
+                                </Border>
+
+                                <!-- Green checkmark on the correct answer the user missed -->
+                                <Label Text="✓"
+                                       IsVisible="{Binding ShowCorrectMark}"
+                                       TextColor="#2E7D32"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="20"
+                                       HorizontalOptions="End"
+                                       VerticalOptions="Center"
+                                       Margin="0,0,16,0"/>
+                            </Grid>
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
 
-                <!-- Explanation (shown after answer) -->
+                <!-- Explanation (shown after answer) — theme-aware, readable in dark mode -->
                 <Border StrokeShape="RoundRectangle 10" Padding="14"
                         IsVisible="{Binding IsAnswerSubmitted}"
-                        BackgroundColor="{Binding IsCorrect, Converter={StaticResource BoolToExplanationBgConverter}}">
+                        BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2A2A2A}">
                     <VerticalStackLayout Spacing="6">
                         <Label Text="{Binding IsCorrect, Converter={StaticResource BoolToResultLabelConverter}}"
                                FontFamily="OpenSansSemibold" FontSize="14"
-                               TextColor="{Binding IsCorrect, Converter={StaticResource BoolToResultColorConverter}}"/>
+                               TextColor="{Binding ExplanationHeadingColor}"/>
                         <Label Text="{Binding CurrentQuestion.Explanation}"
                                FontSize="13" LineHeight="1.4"
-                               TextColor="{StaticResource Gray900}"/>
+                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"/>
                     </VerticalStackLayout>
                 </Border>
 

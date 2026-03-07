@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using DotNetStudyAssistant.Models;
 using DotNetStudyAssistant.Models.Enums;
@@ -5,6 +6,28 @@ using DotNetStudyAssistant.Services;
 using DotNetStudyAssistant.Utilities;
 
 namespace DotNetStudyAssistant.ViewModels;
+
+public class QuizOptionViewModel : BaseViewModel
+{
+    private bool _isSelected;
+    private bool _isAnswerSubmitted;
+    private string _correctAnswer = string.Empty;
+
+    public string Text { get; init; } = string.Empty;
+
+    public bool IsSelected { get => _isSelected; set { SetProperty(ref _isSelected, value); NotifyStateChanged(); } }
+    public bool IsAnswerSubmitted { get => _isAnswerSubmitted; set { SetProperty(ref _isAnswerSubmitted, value); NotifyStateChanged(); } }
+    public string CorrectAnswer { get => _correctAnswer; set { SetProperty(ref _correctAnswer, value); NotifyStateChanged(); } }
+
+    public bool ShowCorrectMark => IsAnswerSubmitted && Text == CorrectAnswer && !IsSelected;
+    public bool IsWrongSelection => IsAnswerSubmitted && IsSelected && Text != CorrectAnswer;
+
+    private void NotifyStateChanged()
+    {
+        OnPropertyChanged(nameof(ShowCorrectMark));
+        OnPropertyChanged(nameof(IsWrongSelection));
+    }
+}
 
 public class QuizViewModel : BaseViewModel
 {
@@ -31,6 +54,16 @@ public class QuizViewModel : BaseViewModel
     public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
     public int TimeRemaining { get => _timeRemaining; set => SetProperty(ref _timeRemaining, value); }
     public bool TimerEnabled { get; set; }
+
+    // Theme-aware heading colour for the explanation box
+    public Color ExplanationHeadingColor => IsCorrect
+        ? (IsDarkTheme ? Color.FromArgb("#81C784") : Color.FromArgb("#2E7D32"))
+        : (IsDarkTheme ? Color.FromArgb("#EF9A9A") : Color.FromArgb("#C62828"));
+
+    private static bool IsDarkTheme =>
+        Application.Current?.RequestedTheme == AppTheme.Dark;
+
+    public ObservableCollection<QuizOptionViewModel> DisplayOptions { get; } = [];
 
     public List<QuizAnswer> Answers { get; } = [];
     public QuizSession Session { get; private set; } = new();
@@ -61,6 +94,7 @@ public class QuizViewModel : BaseViewModel
             _currentIndex = 0;
             Answers.Clear();
             Session = new QuizSession { TopicId = TopicId, StartTime = DateTime.UtcNow };
+            RebuildDisplayOptions();
             OnPropertyChanged(nameof(CurrentQuestion));
             OnPropertyChanged(nameof(CurrentNumber));
             OnPropertyChanged(nameof(Progress));
@@ -74,6 +108,14 @@ public class QuizViewModel : BaseViewModel
         }
     }
 
+    private void RebuildDisplayOptions()
+    {
+        DisplayOptions.Clear();
+        if (CurrentQuestion == null) return;
+        foreach (var opt in CurrentQuestion.Options)
+            DisplayOptions.Add(new QuizOptionViewModel { Text = opt });
+    }
+
     private void SelectAnswer(string answer)
     {
         if (IsAnswerSubmitted) return;
@@ -82,13 +124,14 @@ public class QuizViewModel : BaseViewModel
         IsAnswerSubmitted = true;
         IsCorrect = answer == CurrentQuestion?.CorrectAnswer;
 
-        Answers.Add(new QuizAnswer
+        foreach (var opt in DisplayOptions)
         {
-            QuestionId = CurrentQuestion!.Id,
-            SelectedAnswer = answer,
-            IsCorrect = IsCorrect
-        });
+            opt.CorrectAnswer = CurrentQuestion!.CorrectAnswer;
+            opt.IsSelected = opt.Text == answer;
+            opt.IsAnswerSubmitted = true;
+        }
 
+        OnPropertyChanged(nameof(ExplanationHeadingColor));
         _timer?.Stop();
         ((Command)NextCommand).ChangeCanExecute();
     }
@@ -100,6 +143,7 @@ public class QuizViewModel : BaseViewModel
             _currentIndex++;
             SelectedAnswer = string.Empty;
             IsAnswerSubmitted = false;
+            RebuildDisplayOptions();
             OnPropertyChanged(nameof(CurrentQuestion));
             OnPropertyChanged(nameof(CurrentNumber));
             OnPropertyChanged(nameof(Progress));
@@ -142,7 +186,7 @@ public class QuizViewModel : BaseViewModel
             {
                 _timer.Stop();
                 if (!IsAnswerSubmitted)
-                    SelectAnswer(string.Empty); // time's up — mark wrong
+                    SelectAnswer(string.Empty);
             }
         };
         _timer.Start();
