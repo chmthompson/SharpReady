@@ -43,6 +43,7 @@ public class QuizViewModel : BaseViewModel
     private int _timeRemaining;
     private bool _showExampleCode;
     private IDispatcherTimer? _timer;
+    private bool _hasLoaded;
 
     public Question? CurrentQuestion => _questions.Count > 0 ? _questions[_currentIndex] : null;
     public int CurrentNumber => _currentIndex + 1;
@@ -98,6 +99,8 @@ public class QuizViewModel : BaseViewModel
 
     public async Task LoadAsync()
     {
+        if (_hasLoaded) return;
+        _hasLoaded = true;
         IsBusy = true;
         try
         {

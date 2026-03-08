@@ -36,7 +36,7 @@
                         <Label Grid.Column="0" Text="Number of questions"
                                FontSize="14" VerticalOptions="Center"/>
                         <Picker Grid.Column="1"
-                                ItemsSource="{Binding CountOptions}"
+                                ItemsSource="{Binding AvailableCountOptions}"
                                 SelectedIndex="{Binding SelectedCountIndex}"
                                 WidthRequest="80"/>
                     </Grid>

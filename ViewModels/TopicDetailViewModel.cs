@@ -22,10 +22,21 @@ public class TopicDetailViewModel : BaseViewModel
 
     public Topic? Topic { get => _topic; set => SetProperty(ref _topic, value); }
     public double Mastery { get => _mastery; set => SetProperty(ref _mastery, value); }
-    public int QuestionCount { get => _questionCount; set => SetProperty(ref _questionCount, value); }
-    public List<int> CountOptions { get; } = [5, 10, 15, 20];
+    public int QuestionCount
+    {
+        get => _questionCount;
+        set
+        {
+            SetProperty(ref _questionCount, value);
+            OnPropertyChanged(nameof(AvailableCountOptions));
+            if (SelectedCountIndex >= AvailableCountOptions.Count)
+                SelectedCountIndex = AvailableCountOptions.Count - 1;
+        }
+    }
+    private static readonly List<int> CountOptions = [5, 10, 15, 20];
+    public List<int> AvailableCountOptions => CountOptions.Where(c => c <= _questionCount).ToList() is { Count: > 0 } opts ? opts : [Math.Min(5, _questionCount)];
     public int SelectedCountIndex { get => _selectedCountIndex; set => SetProperty(ref _selectedCountIndex, value); }
-    public int DefaultCount => SelectedCountIndex >= 0 && SelectedCountIndex < CountOptions.Count ? CountOptions[SelectedCountIndex] : 10;
+    public int DefaultCount => SelectedCountIndex >= 0 && SelectedCountIndex < AvailableCountOptions.Count ? AvailableCountOptions[SelectedCountIndex] : AvailableCountOptions.FirstOrDefault(5);
     public DifficultyLevel SelectedDifficulty { get => _selectedDifficulty; set => SetProperty(ref _selectedDifficulty, value); }
     public bool TimerEnabled { get => _timerEnabled; set => SetProperty(ref _timerEnabled, value); }
     public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
