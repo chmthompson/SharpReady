@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace DotNetStudyAssistant.Utilities;
+namespace SharpReady.Utilities;
 
 /// <summary>
 /// Base class providing INotifyPropertyChanged implementation for ViewModels

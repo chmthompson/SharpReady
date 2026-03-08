@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DotNetStudyAssistant.Models;
-using DotNetStudyAssistant.Models.Enums;
-using DotNetStudyAssistant.Services;
-using DotNetStudyAssistant.Utilities;
+using SharpReady.Models;
+using SharpReady.Models.Enums;
+using SharpReady.Services;
+using SharpReady.Utilities;
 
-namespace DotNetStudyAssistant.ViewModels;
+namespace SharpReady.ViewModels;
 
 public class QuizOptionViewModel : BaseViewModel
 {
@@ -19,7 +19,7 @@ public class QuizOptionViewModel : BaseViewModel
     public bool IsAnswerSubmitted { get => _isAnswerSubmitted; set { SetProperty(ref _isAnswerSubmitted, value); NotifyStateChanged(); } }
     public string CorrectAnswer { get => _correctAnswer; set { SetProperty(ref _correctAnswer, value); NotifyStateChanged(); } }
 
-    public bool ShowCorrectMark => IsAnswerSubmitted && Text == CorrectAnswer && !IsSelected;
+    public bool ShowCorrectMark => IsAnswerSubmitted && Text == CorrectAnswer;
     public bool IsWrongSelection => IsAnswerSubmitted && IsSelected && Text != CorrectAnswer;
 
     private void NotifyStateChanged()
@@ -41,6 +41,7 @@ public class QuizViewModel : BaseViewModel
     private bool _isCorrect;
     private bool _isBusy;
     private int _timeRemaining;
+    private bool _showExampleCode;
     private IDispatcherTimer? _timer;
 
     public Question? CurrentQuestion => _questions.Count > 0 ? _questions[_currentIndex] : null;
@@ -54,6 +55,14 @@ public class QuizViewModel : BaseViewModel
     public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
     public int TimeRemaining { get => _timeRemaining; set => SetProperty(ref _timeRemaining, value); }
     public bool TimerEnabled { get; set; }
+
+    public bool ShowExampleCode
+    {
+        get => _showExampleCode;
+        set { SetProperty(ref _showExampleCode, value); OnPropertyChanged(nameof(ExampleCodeLinkText)); }
+    }
+    public bool ShowExampleCodeLink => IsAnswerSubmitted && !IsCorrect && CurrentQuestion?.ExampleCode != null;
+    public string ExampleCodeLinkText => ShowExampleCode ? "▴ Hide example" : "▾ Show example code";
 
     // Theme-aware heading colour for the explanation box
     public Color ExplanationHeadingColor => IsCorrect
@@ -75,6 +84,7 @@ public class QuizViewModel : BaseViewModel
     public ICommand LoadCommand { get; }
     public ICommand SelectAnswerCommand { get; }
     public ICommand NextCommand { get; }
+    public ICommand ToggleExampleCodeCommand { get; }
 
     public QuizViewModel(IQuizService quizService, INavigationService navigationService)
     {
@@ -83,6 +93,7 @@ public class QuizViewModel : BaseViewModel
         LoadCommand = new Command(async () => await LoadAsync());
         SelectAnswerCommand = new Command<string>(SelectAnswer);
         NextCommand = new Command(async () => await NextAsync(), () => IsAnswerSubmitted);
+        ToggleExampleCodeCommand = new Command(() => ShowExampleCode = !ShowExampleCode);
     }
 
     public async Task LoadAsync()
@@ -90,13 +101,17 @@ public class QuizViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            _questions = await _quizService.GetQuestionsAsync(TopicId, Difficulty, Count);
+            // TopicId == 0 means Quick Quiz: pull randomly from the full question bank
+            _questions = TopicId == 0
+                ? await _quizService.GetQuestionsAsync(0, count: Count)
+                : await _quizService.GetQuestionsAsync(TopicId, Difficulty, Count);
             _currentIndex = 0;
             Answers.Clear();
             Session = new QuizSession { TopicId = TopicId, StartTime = DateTime.UtcNow };
             RebuildDisplayOptions();
             OnPropertyChanged(nameof(CurrentQuestion));
             OnPropertyChanged(nameof(CurrentNumber));
+            OnPropertyChanged(nameof(TotalQuestions));
             OnPropertyChanged(nameof(Progress));
 
             if (TimerEnabled)
@@ -131,7 +146,16 @@ public class QuizViewModel : BaseViewModel
             opt.IsAnswerSubmitted = true;
         }
 
+        Answers.Add(new QuizAnswer
+        {
+            QuestionId = CurrentQuestion!.Id,
+            SelectedAnswer = answer,
+            IsCorrect = IsCorrect
+        });
+
         OnPropertyChanged(nameof(ExplanationHeadingColor));
+        ShowExampleCode = false;
+        OnPropertyChanged(nameof(ShowExampleCodeLink));
         _timer?.Stop();
         ((Command)NextCommand).ChangeCanExecute();
     }
@@ -143,6 +167,8 @@ public class QuizViewModel : BaseViewModel
             _currentIndex++;
             SelectedAnswer = string.Empty;
             IsAnswerSubmitted = false;
+            ShowExampleCode = false;
+            OnPropertyChanged(nameof(ShowExampleCodeLink));
             RebuildDisplayOptions();
             OnPropertyChanged(nameof(CurrentQuestion));
             OnPropertyChanged(nameof(CurrentNumber));
@@ -164,7 +190,8 @@ public class QuizViewModel : BaseViewModel
         Session.Answers.AddRange(Answers);
 
         await _quizService.SaveSessionAsync(Session);
-        await _quizService.UpdateProgressAsync(TopicId, Session);
+        if (TopicId != 0)
+            await _quizService.UpdateProgressAsync(TopicId, Session);
 
         await _navigationService.NavigateToAsync("QuizResults", new Dictionary<string, object>
         {

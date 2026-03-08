@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DotNetStudyAssistant.Models;
+namespace SharpReady.Models;
 
 /// <summary>
 /// User profile model representing a user in the application

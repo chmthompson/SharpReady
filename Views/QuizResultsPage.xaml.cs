@@ -1,6 +1,6 @@
-using DotNetStudyAssistant.ViewModels;
+using SharpReady.ViewModels;
 
-namespace DotNetStudyAssistant.Views;
+namespace SharpReady.Views;
 
 [QueryProperty(nameof(SessionId), "SessionId")]
 [QueryProperty(nameof(TopicId), "TopicId")]

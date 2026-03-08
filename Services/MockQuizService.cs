@@ -1,7 +1,7 @@
-using DotNetStudyAssistant.Models;
-using DotNetStudyAssistant.Models.Enums;
+using SharpReady.Models;
+using SharpReady.Models.Enums;
 
-namespace DotNetStudyAssistant.Services;
+namespace SharpReady.Services;
 
 public class MockQuizService : IQuizService
 {
@@ -78,7 +78,7 @@ public class MockQuizService : IQuizService
     // Seed data
     // -------------------------------------------------------------------------
 
-    private static List<Topic> SeedTopics() =>
+    internal static List<Topic> SeedTopics() =>
     [
         new() { Id = 1, Name = "OOP Fundamentals", Category = CSharpCategory.OOP,
             Description = "Classes, interfaces, inheritance, polymorphism, and SOLID principles." },
@@ -96,14 +96,15 @@ public class MockQuizService : IQuizService
             Description = "Records, pattern matching, nullable reference types, and primary constructors." },
     ];
 
-    private static List<Question> SeedQuestions() =>
+    internal static List<Question> SeedQuestions() =>
     [
         // ── OOP (TopicId = 1) ───────────────────────────────────────────────
         new() { Id = 1, TopicId = 1, Difficulty = DifficultyLevel.Junior, Type = QuestionType.MultipleChoice,
             Text = "Which OOP principle hides the internal state of an object and only exposes a public interface?",
             Options = ["Inheritance", "Encapsulation", "Polymorphism", "Abstraction"],
             CorrectAnswer = "Encapsulation",
-            Explanation = "Encapsulation bundles data (fields) with the methods that operate on them and restricts direct access using access modifiers like private/protected." },
+            Explanation = "Encapsulation bundles data (fields) with the methods that operate on them and restricts direct access using access modifiers like private/protected.",
+            ExampleCode = "public class BankAccount\n{\n    private decimal _balance; // hidden state\n\n    public void Deposit(decimal amount)\n    {\n        if (amount > 0) _balance += amount;\n    }\n\n    public decimal Balance => _balance; // read-only access\n}" },
 
         new() { Id = 2, TopicId = 1, Difficulty = DifficultyLevel.Junior, Type = QuestionType.TrueFalse,
             Text = "A C# struct can inherit from another struct.",
@@ -120,7 +121,8 @@ public class MockQuizService : IQuizService
                 "Abstract classes cannot have constructors"
             ],
             CorrectAnswer = "An abstract class can have implementation and state; an interface defines only a contract",
-            Explanation = "Abstract classes can have fields, constructors, and method implementations. Interfaces (pre-C# 8) only declare members. Since C# 8, interfaces can have default implementations, but the core distinction remains: abstract classes support state and single inheritance, interfaces support multiple implementation." },
+            Explanation = "Abstract classes can have fields, constructors, and method implementations. Interfaces (pre-C# 8) only declare members. Since C# 8, interfaces can have default implementations, but the core distinction remains: abstract classes support state and single inheritance, interfaces support multiple implementation.",
+            ExampleCode = "// Abstract class — can have state and implementation\nabstract class Shape\n{\n    protected string Color = \"red\"; // state allowed\n    public abstract double Area();\n    public void Describe() => Console.WriteLine($\"A {Color} shape\");\n}\n\n// Interface — contract only (pre-C# 8)\ninterface IDrawable { void Draw(); }\n\n// A class can implement multiple interfaces but only one abstract class\nclass Circle : Shape, IDrawable\n{\n    double _r;\n    public Circle(double r) => _r = r;\n    public override double Area() => Math.PI * _r * _r;\n    public void Draw() => Console.WriteLine(\"Drawing circle\");\n}" },
 
         new() { Id = 4, TopicId = 1, Difficulty = DifficultyLevel.Mid, Type = QuestionType.MultipleChoice,
             Text = "What does the 'virtual' keyword enable in C#?",
@@ -131,7 +133,8 @@ public class MockQuizService : IQuizService
                 "It marks a method as abstract"
             ],
             CorrectAnswer = "It allows a method to be overridden in a derived class",
-            Explanation = "The 'virtual' keyword allows a base class method to be overridden by derived classes using the 'override' keyword. Without 'virtual', the method cannot be overridden (only hidden with 'new')." },
+            Explanation = "The 'virtual' keyword allows a base class method to be overridden by derived classes using the 'override' keyword. Without 'virtual', the method cannot be overridden (only hidden with 'new').",
+            ExampleCode = "class Base\n{\n    public virtual void Greet() => Console.WriteLine(\"Base\");\n    public void Fixed() => Console.WriteLine(\"Cannot override\");\n}\n\nclass Child : Base\n{\n    public override void Greet() => Console.WriteLine(\"Child\");\n    // public override void Fixed() { } // compile error!\n    public new void Fixed() => Console.WriteLine(\"Hides, not overrides\");\n}\n\nBase b = new Child();\nb.Greet(); // Child  (virtual dispatch)\nb.Fixed(); // Cannot override  (no virtual dispatch)" },
 
         new() { Id = 5, TopicId = 1, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
             Text = "Which SOLID principle states that a class should have only one reason to change?",
@@ -155,7 +158,8 @@ public class MockQuizService : IQuizService
                 "A class implements more than one interface"
             ],
             CorrectAnswer = "A derived class strengthens preconditions or weakens postconditions compared to the base class",
-            Explanation = "LSP states that objects of a derived class must be substitutable for objects of the base class without altering program correctness. Strengthening preconditions (demanding more from callers) or weakening postconditions (guaranteeing less) breaks substitutability." },
+            Explanation = "LSP states that objects of a derived class must be substitutable for objects of the base class without altering program correctness. Strengthening preconditions (demanding more from callers) or weakening postconditions (guaranteeing less) breaks substitutability.",
+            ExampleCode = "// Classic LSP violation: Square extends Rectangle\nclass Rectangle\n{\n    public virtual int Width { get; set; }\n    public virtual int Height { get; set; }\n    public int Area() => Width * Height;\n}\n\nclass Square : Rectangle\n{\n    // Forces Width == Height — breaks callers that set them independently\n    public override int Width { set { base.Width = value; base.Height = value; } }\n    public override int Height { set { base.Width = value; base.Height = value; } }\n}\n\n// Caller expecting Rectangle behaviour:\nRectangle r = new Square();\nr.Width = 4;\nr.Height = 5;\nConsole.WriteLine(r.Area()); // 25, not 20 — LSP violated!" },
 
         // ── LINQ (TopicId = 2) ───────────────────────────────────────────────
         new() { Id = 8, TopicId = 2, Difficulty = DifficultyLevel.Mid, Type = QuestionType.MultipleChoice,
@@ -185,7 +189,8 @@ public class MockQuizService : IQuizService
                 "There is no functional difference"
             ],
             CorrectAnswer = "IEnumerable executes queries in memory; IQueryable translates queries to the data source (e.g., SQL)",
-            Explanation = "IEnumerable<T> pulls all data into memory first then filters. IQueryable<T> builds an expression tree that the provider (e.g., EF Core) translates to SQL, so filtering happens on the database server — far more efficient for large datasets." },
+            Explanation = "IEnumerable<T> pulls all data into memory first then filters. IQueryable<T> builds an expression tree that the provider (e.g., EF Core) translates to SQL, so filtering happens on the database server — far more efficient for large datasets.",
+            ExampleCode = "// IEnumerable — filters in memory (loads ALL rows first)\nIEnumerable<User> users = db.Users.AsEnumerable();\nvar admins = users.Where(u => u.IsAdmin); // C# filtering\n\n// IQueryable — translates to SQL WHERE clause\nIQueryable<User> query = db.Users;\nvar admins2 = query.Where(u => u.IsAdmin); // SQL: WHERE IsAdmin = 1\n// Only matching rows are fetched from the DB" },
 
         new() { Id = 11, TopicId = 2, Difficulty = DifficultyLevel.Senior, Type = QuestionType.TrueFalse,
             Text = "GroupBy() in LINQ returns an IEnumerable<IGrouping<TKey, TElement>>.",
@@ -203,7 +208,8 @@ public class MockQuizService : IQuizService
                 "It cancels the task if it takes too long"
             ],
             CorrectAnswer = "It tells the awaiter not to capture and resume on the original synchronisation context",
-            Explanation = "ConfigureAwait(false) prevents the continuation from marshalling back to the original context (e.g., the UI thread). Library code should use it to avoid deadlocks in synchronisation-context-heavy environments and to improve throughput." },
+            Explanation = "ConfigureAwait(false) prevents the continuation from marshalling back to the original context (e.g., the UI thread). Library code should use it to avoid deadlocks in synchronisation-context-heavy environments and to improve throughput.",
+            ExampleCode = "// Library code — use ConfigureAwait(false)\npublic async Task<string> FetchDataAsync()\n{\n    var response = await httpClient\n        .GetAsync(url)\n        .ConfigureAwait(false); // don't need UI thread\n\n    return await response.Content\n        .ReadAsStringAsync()\n        .ConfigureAwait(false);\n}\n\n// UI/App code — omit ConfigureAwait(false)\n// so continuation runs back on UI thread\nprivate async void Button_Click(object s, EventArgs e)\n{\n    var data = await FetchDataAsync();\n    label.Text = data; // safe — back on UI thread\n}" },
 
         new() { Id = 13, TopicId = 3, Difficulty = DifficultyLevel.Mid, Type = QuestionType.TrueFalse,
             Text = "Using 'async void' is recommended for event handlers but should be avoided elsewhere.",

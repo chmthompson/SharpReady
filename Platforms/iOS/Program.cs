@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace DotNetStudyAssistant;
+namespace SharpReady;
 
 public class Program
 {

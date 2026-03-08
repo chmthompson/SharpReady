@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace DotNetStudyAssistant;
+namespace SharpReady;
 
 [Application]
 public class MainApplication : MauiApplication

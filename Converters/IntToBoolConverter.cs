@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace DotNetStudyAssistant.Converters;
+namespace SharpReady.Converters;
 
 public class IntToBoolConverter : IValueConverter
 {

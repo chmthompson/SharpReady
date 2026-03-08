@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DotNetStudyAssistant.Models;
-using DotNetStudyAssistant.Models.Enums;
-using DotNetStudyAssistant.Services;
-using DotNetStudyAssistant.Utilities;
+using SharpReady.Models;
+using SharpReady.Models.Enums;
+using SharpReady.Services;
+using SharpReady.Utilities;
 
-namespace DotNetStudyAssistant.ViewModels;
+namespace SharpReady.ViewModels;
 
 public class TopicDetailViewModel : BaseViewModel
 {
@@ -15,7 +15,7 @@ public class TopicDetailViewModel : BaseViewModel
     private Topic? _topic;
     private double _mastery;
     private int _questionCount;
-    private int _defaultCount = 10;
+    private int _selectedCountIndex = 1; // index 1 = 10 questions
     private DifficultyLevel _selectedDifficulty = DifficultyLevel.Mid;
     private bool _timerEnabled;
     private bool _isBusy;
@@ -23,7 +23,9 @@ public class TopicDetailViewModel : BaseViewModel
     public Topic? Topic { get => _topic; set => SetProperty(ref _topic, value); }
     public double Mastery { get => _mastery; set => SetProperty(ref _mastery, value); }
     public int QuestionCount { get => _questionCount; set => SetProperty(ref _questionCount, value); }
-    public int DefaultCount { get => _defaultCount; set => SetProperty(ref _defaultCount, value); }
+    public List<int> CountOptions { get; } = [5, 10, 15, 20];
+    public int SelectedCountIndex { get => _selectedCountIndex; set => SetProperty(ref _selectedCountIndex, value); }
+    public int DefaultCount => SelectedCountIndex >= 0 && SelectedCountIndex < CountOptions.Count ? CountOptions[SelectedCountIndex] : 10;
     public DifficultyLevel SelectedDifficulty { get => _selectedDifficulty; set => SetProperty(ref _selectedDifficulty, value); }
     public bool TimerEnabled { get => _timerEnabled; set => SetProperty(ref _timerEnabled, value); }
     public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }

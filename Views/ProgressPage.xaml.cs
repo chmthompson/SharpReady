@@ -1,6 +1,6 @@
-using DotNetStudyAssistant.ViewModels;
+using SharpReady.ViewModels;
 
-namespace DotNetStudyAssistant.Views;
+namespace SharpReady.Views;
 
 public partial class ProgressPage : ContentPage
 {

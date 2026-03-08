@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace DotNetStudyAssistant;
+namespace SharpReady;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate

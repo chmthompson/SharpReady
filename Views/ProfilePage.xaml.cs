@@ -1,4 +1,4 @@
-namespace DotNetStudyAssistant.Views;
+namespace SharpReady.Views;
 
 public partial class ProfilePage : ContentPage
 {

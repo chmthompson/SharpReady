@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
-             x:Class="DotNetStudyAssistant.Views.DashboardPage"
+             xmlns:vm="clr-namespace:SharpReady.ViewModels"
+             x:Class="SharpReady.Views.DashboardPage"
              x:DataType="vm:DashboardViewModel"
-             Title="Home">
+             Title="Home"
+             Shell.NavBarIsVisible="False">
 
     <RefreshView Command="{Binding LoadCommand}" IsRefreshing="{Binding IsBusy}">
         <ScrollView>
@@ -65,41 +66,39 @@
                 <!-- Weakest Areas -->
                 <Label Text="Focus Areas" Style="{StaticResource SectionHeader}"/>
 
-                <CollectionView ItemsSource="{Binding WeakestAreas}" HeightRequest="160">
-                    <CollectionView.EmptyView>
-                        <Label Text="Keep practising — weak areas will appear here."
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
-                               HorizontalTextAlignment="Center" Margin="0,16"/>
-                    </CollectionView.EmptyView>
-                    <CollectionView.ItemTemplate>
+                <Label Text="Keep practising — weak areas will appear here."
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                       HorizontalTextAlignment="Center" Margin="0,16"
+                       IsVisible="{Binding IsWeakAreasEmpty}"/>
+
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding WeakestAreas}"
+                                     Spacing="12" Margin="0,0,0,32">
+                    <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:TopicWithProgress">
-                            <Border Style="{StaticResource OptionCard}" Margin="0,4">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                        <Label Text="{Binding Topic.Name}"
-                                               FontFamily="OpenSansSemibold" FontSize="14"/>
-                                        <ProgressBar Progress="{Binding Mastery, Converter={StaticResource PercentToProgressConverter}}"
-                                                     Style="{StaticResource MasteryBar}"/>
-                                    </VerticalStackLayout>
-                                    <Label Grid.Column="1" Text="{Binding MasteryLabel}"
-                                           FontFamily="OpenSansSemibold" FontSize="14"
+                            <Border Style="{StaticResource OptionCard}" Padding="16">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Topic.Name}"
+                                           FontFamily="OpenSansSemibold" FontSize="15"/>
+                                    <Label Grid.Row="0" Grid.Column="1"
+                                           Text="{Binding MasteryLabel}"
+                                           FontFamily="OpenSansSemibold" FontSize="15"
                                            TextColor="{StaticResource Primary}"
-                                           VerticalOptions="Center" Margin="12,0,0,0"/>
+                                           VerticalOptions="Center"/>
+                                    <ProgressBar Grid.Row="1" Grid.ColumnSpan="2"
+                                                 Progress="{Binding Mastery, Converter={StaticResource PercentToProgressConverter}}"
+                                                 Style="{StaticResource MasteryBar}"
+                                                 HeightRequest="8"/>
+                                    <Label Grid.Row="2" Grid.ColumnSpan="2"
+                                           Text="{Binding CategoryLabel}"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-
-                <!-- CTAs -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,20,0,32">
-                    <Button Grid.Column="0" Text="Practice Now"
-                            Command="{Binding GoToPracticeCommand}"/>
-                    <Button Grid.Column="1" Text="Quick Quiz"
-                            Command="{Binding QuickQuizCommand}"
-                            BackgroundColor="{StaticResource Tertiary}"/>
-                </Grid>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
             </VerticalStackLayout>
         </ScrollView>

@@ -1,4 +1,4 @@
-namespace DotNetStudyAssistant.Services;
+namespace SharpReady.Services;
 
 /// <summary>
 /// Interface for data persistence service

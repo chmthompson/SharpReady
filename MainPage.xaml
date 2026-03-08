@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SharpReady.MainPage"
+             x:DataType="local:MainViewModel"
+             xmlns:local="clr-namespace:SharpReady.ViewModels"
+             xmlns:models="clr-namespace:SharpReady.Models"
+             Title="Android App">
+
+    <VerticalStackLayout
+        Padding="20"
+        Spacing="15"
+        VerticalOptions="FillAndExpand">
+
+        <Label
+            Text="{Binding Title}"
+            FontSize="24"
+            FontAttributes="Bold"
+            HorizontalTextAlignment="Center" />
+
+        <Frame BorderColor="#CCCCCC" CornerRadius="10" Padding="15">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Counter Demo" FontAttributes="Bold" FontSize="16" />
+                <Label Text="{Binding StatusMessage}" FontSize="14" />
+                <Label
+                    Text="{Binding Count, StringFormat='Count: {0}'}"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Frame>
+
+        <Button
+            Text="Increment Counter"
+            Clicked="OnCounterClicked"
+            HorizontalOptions="Fill"
+            Padding="10"
+            BackgroundColor="#007AFF" />
+
+        <Button
+            Text="Load Data"
+            Command="{Binding LoadDataCommand}"
+            HorizontalOptions="Fill"
+            Padding="10"
+            BackgroundColor="#34C759" />
+
+        <Button
+            Text="Reset"
+            Command="{Binding ResetCommand}"
+            HorizontalOptions="Fill"
+            Padding="10"
+            BackgroundColor="#FF9500" />
+
+        <Label Text="Users:" FontAttributes="Bold" FontSize="16" />
+
+        <CollectionView ItemsSource="{Binding Users}" SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:UserProfile">
+                    <Frame Padding="10" Margin="5" BorderColor="#E0E0E0">
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="{Binding FullName}" FontAttributes="Bold" />
+                            <Label Text="{Binding Email}" FontSize="12" TextColor="#666666" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+
+</ContentPage>

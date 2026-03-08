@@ -1,9 +1,9 @@
-using DotNetStudyAssistant.Services;
-using DotNetStudyAssistant.ViewModels;
-using DotNetStudyAssistant.Views;
+using SharpReady.Services;
+using SharpReady.ViewModels;
+using SharpReady.Views;
 using Microsoft.Extensions.Logging;
 
-namespace DotNetStudyAssistant;
+namespace SharpReady;
 
 public static class MauiProgram
 {
@@ -32,7 +32,7 @@ public static class MauiProgram
 	{
 		builder.Services.AddSingleton<IDataService, MockDataService>();
 		builder.Services.AddSingleton<INavigationService, NavigationService>();
-		builder.Services.AddSingleton<IQuizService, MockQuizService>();
+		builder.Services.AddSingleton<IQuizService, SqliteQuizService>();
 		return builder;
 	}
 
@@ -43,6 +43,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<TopicDetailViewModel>();
 		builder.Services.AddTransient<QuizViewModel>();
 		builder.Services.AddTransient<QuizResultsViewModel>();
+		builder.Services.AddSingleton<QuickQuizViewModel>();
 		builder.Services.AddSingleton<ProgressViewModel>();
 		builder.Services.AddSingleton<SettingsViewModel>();
 		return builder;
@@ -55,6 +56,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<TopicDetailPage>();
 		builder.Services.AddTransient<QuizPage>();
 		builder.Services.AddTransient<QuizResultsPage>();
+		builder.Services.AddSingleton<QuickQuizPage>();
 		builder.Services.AddSingleton<ProgressPage>();
 		builder.Services.AddSingleton<SettingsPage>();
 		return builder;

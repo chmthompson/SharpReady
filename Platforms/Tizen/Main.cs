@@ -2,7 +2,7 @@ using System;
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 
-namespace DotNetStudyAssistant;
+namespace SharpReady;
 
 class Program : MauiApplication
 {

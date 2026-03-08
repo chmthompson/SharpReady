@@ -1,4 +1,4 @@
-﻿namespace DotNetStudyAssistant;
+﻿namespace SharpReady;
 
 public partial class App : Application
 {

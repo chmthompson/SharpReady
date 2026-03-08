@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
-             xmlns:m="clr-namespace:DotNetStudyAssistant.Models"
-             x:Class="DotNetStudyAssistant.Views.TopicDetailPage"
+             xmlns:vm="clr-namespace:SharpReady.ViewModels"
+             xmlns:m="clr-namespace:SharpReady.Models"
+             x:Class="SharpReady.Views.TopicDetailPage"
              x:DataType="vm:TopicDetailViewModel"
              Title="{Binding Topic.Name}">
 
@@ -35,17 +35,10 @@
                     <Grid ColumnDefinitions="*,Auto">
                         <Label Grid.Column="0" Text="Number of questions"
                                FontSize="14" VerticalOptions="Center"/>
-                        <Picker Grid.Column="1" Title="Count"
-                                SelectedItem="{Binding DefaultCount}" WidthRequest="80">
-                            <Picker.ItemsSource>
-                                <x:Array Type="{x:Type x:Int32}">
-                                    <x:Int32>5</x:Int32>
-                                    <x:Int32>10</x:Int32>
-                                    <x:Int32>15</x:Int32>
-                                    <x:Int32>20</x:Int32>
-                                </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker>
+                        <Picker Grid.Column="1"
+                                ItemsSource="{Binding CountOptions}"
+                                SelectedIndex="{Binding SelectedCountIndex}"
+                                WidthRequest="80"/>
                     </Grid>
                     <!-- Timer toggle -->
                     <Grid ColumnDefinitions="*,Auto">

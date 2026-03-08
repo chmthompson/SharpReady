@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DotNetStudyAssistant.Models;
+namespace SharpReady.Models;
 
 /// <summary>
 /// Base model class for all entities

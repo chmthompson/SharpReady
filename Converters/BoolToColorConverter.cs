@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace DotNetStudyAssistant.Converters;
+namespace SharpReady.Converters;
 
 /// <summary>Returns TrueColor when value is true, FalseColor otherwise.</summary>
 public class BoolToColorConverter : IValueConverter

@@ -1,0 +1,169 @@
+SharpReady Project File Structure
+Generated: March 4, 2026
+
+D:\Code\Claude\SharpReady\
+│
+├── Documentation
+│   ├── README.md                           - Complete project documentation
+│   ├── ARCHITECTURE.md                    - Design patterns and architecture decisions
+│   ├── GETTING_STARTED.md                 - Quick start guide for developers
+│   ├── PROJECT_SUMMARY.md                 - High-level project overview
+│   └── FILE_STRUCTURE.txt                 - This file
+│
+├── Project Configuration
+│   ├── SharpReady.csproj                  - Project file (net9.0-android target)
+│   ├── MauiProgram.cs                     - DI container configuration
+│   ├── App.xaml                           - Application-level resources
+│   └── App.xaml.cs                        - Application lifecycle
+│
+├── UI & Shell
+│   ├── AppShell.xaml                      - Navigation shell with tabs
+│   ├── AppShell.xaml.cs                   - Navigation code-behind
+│   │
+│   ├── Views/                             - Page views
+│   │   ├── MainPage.xaml                  - Home page UI
+│   │   ├── MainPage.xaml.cs               - Home page code-behind
+│   │   ├── ProfilePage.xaml               - Profile page UI
+│   │   └── ProfilePage.xaml.cs            - Profile page code-behind
+│   │
+│   └── Resources/                         - Application resources
+│       ├── AppIcon/
+│       │   ├── appicon.svg
+│       │   └── appiconfg.svg
+│       ├── Fonts/
+│       │   ├── OpenSans-Regular.ttf
+│       │   └── OpenSans-Semibold.ttf
+│       ├── Images/
+│       │   └── dotnet_bot.png
+│       ├── Splash/
+│       │   └── splash.svg
+│       └── Styles/
+│           ├── Colors.xaml
+│           └── Styles.xaml
+│
+├── Business Logic (MVVM)
+│   ├── ViewModels/                        - Page ViewModels
+│   │   └── MainViewModel.cs               - Main page business logic
+│   │
+│   ├── Models/                            - Data entities
+│   │   ├── BaseModel.cs                   - Abstract base entity
+│   │   └── UserProfile.cs                 - Example user model
+│   │
+│   └── Services/                          - Business services
+│       ├── IDataService.cs                - Data persistence interface
+│       ├── MockDataService.cs             - Mock implementation for dev/test
+│       ├── INavigationService.cs          - Navigation interface
+│       └── NavigationService.cs           - MAUI Shell routing implementation
+│
+├── Utilities
+│   └── Utilities/
+│       └── BaseViewModel.cs               - MVVM base class with INotifyPropertyChanged
+│
+└── Platform-Specific Code
+    ├── Platforms/Android/                 - Android-specific implementation
+    │   ├── MainActivity.cs                - Android activity entry point
+    │   ├── MainApplication.cs             - Android application class
+    │   ├── AndroidManifest.xml            - App permissions and configuration
+    │   └── Resources/
+    │       └── values/
+    │           └── colors.xml             - Android color resources
+    │
+    ├── Platforms/iOS/                     - iOS-specific (not built currently)
+    │   ├── AppDelegate.cs
+    │   └── Program.cs
+    │
+    ├── Platforms/MacCatalyst/             - macOS catalyst (not built)
+    │   ├── AppDelegate.cs
+    │   └── Program.cs
+    │
+    ├── Platforms/Windows/                 - Windows (not built)
+    │   ├── App.xaml
+    │   └── App.xaml.cs
+    │
+    └── Platforms/Tizen/                   - Samsung Tizen (not built)
+        ├── Main.cs
+        └── tizen-manifest.xml
+
+Generated Files (Build Output)
+├── bin/                                   - Build output directory
+│   └── Debug/
+│       └── net9.0-android/
+│           └── SharpReady.dll             - Compiled assembly
+│
+└── obj/                                   - Intermediate files
+    ├── project.assets.json
+    └── [various build artifacts]
+
+
+Key File Descriptions
+=====================
+
+Core Application Files
+- MauiProgram.cs: Configures dependency injection container. All services and ViewModels are registered here.
+- App.xaml/cs: Application-level resources and lifecycle management.
+- AppShell.xaml: Defines navigation structure with tabs for Main and Profile.
+
+UI/Views
+- Views/MainPage.xaml: Counter demo with data binding examples
+- Views/ProfilePage.xaml: Profile page template
+- AppShell.xaml: Tab-based navigation with two pages
+
+Business Logic
+- ViewModels/MainViewModel.cs: Implements MVVM pattern with properties and commands
+- Services/IDataService.cs: Abstract interface for data operations
+- Services/MockDataService.cs: In-memory implementation for development
+
+Data Models
+- Models/BaseModel.cs: Base class providing Id, CreatedAt, UpdatedAt, Notes
+- Models/UserProfile.cs: Example entity (FirstName, LastName, Email, Phone, Bio)
+
+Infrastructure
+- Utilities/BaseViewModel.cs: Provides INotifyPropertyChanged for data binding
+- Services/NavigationService.cs: Wrapper around MAUI Shell routing
+
+Android-Specific
+- Platforms/Android/MainActivity.cs: Android activity configuration
+- Platforms/Android/MainApplication.cs: Android application lifecycle
+- Platforms/Android/AndroidManifest.xml: Permissions and app configuration
+
+
+Build Configuration
+===================
+
+Target Framework: net9.0-android
+Minimum API Level: 21 (Android 5.0)
+Target API Level: 34 (Android 14)
+Package ID: com.companyname.androidapp
+
+
+Getting Started Commands
+========================
+
+Navigate to project:
+  cd D:\Code\claude\SharpReady
+
+Build:
+  dotnet build -f net9.0-android
+
+Run on emulator:
+  dotnet run -f net9.0-android
+
+Run on device:
+  dotnet run -f net9.0-android
+
+Clean:
+  dotnet clean
+
+Restore:
+  dotnet restore
+
+
+Documentation Reading Order
+===========================
+
+1. PROJECT_SUMMARY.md     - What was created and why
+2. GETTING_STARTED.md     - Step-by-step setup and first changes
+3. README.md              - Complete overview and best practices
+4. ARCHITECTURE.md        - Design patterns and technical decisions
+
+Then explore the code files following the patterns shown in documentation.

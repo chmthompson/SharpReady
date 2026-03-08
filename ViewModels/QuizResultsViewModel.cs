@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DotNetStudyAssistant.Models;
-using DotNetStudyAssistant.Services;
-using DotNetStudyAssistant.Utilities;
+using SharpReady.Models;
+using SharpReady.Services;
+using SharpReady.Utilities;
 
-namespace DotNetStudyAssistant.ViewModels;
+namespace SharpReady.ViewModels;
 
 public class QuizResultsViewModel : BaseViewModel
 {
@@ -27,6 +27,7 @@ public class QuizResultsViewModel : BaseViewModel
     public string ScoreLabel => Session != null ? $"{Session.Score}/{Session.TotalQuestions}" : "-";
     public string PercentLabel => Session != null ? $"{Session.ScorePercent:F0}%" : "-";
     public bool Passed => Session?.ScorePercent >= 70;
+    public string TopicDisplayName => Topic?.Name ?? "Quick Quiz";
 
     public ICommand LoadCommand { get; }
     public ICommand PracticeAgainCommand { get; }
@@ -58,11 +59,13 @@ public class QuizResultsViewModel : BaseViewModel
             OnPropertyChanged(nameof(ScoreLabel));
             OnPropertyChanged(nameof(PercentLabel));
             OnPropertyChanged(nameof(Passed));
+            OnPropertyChanged(nameof(TopicDisplayName));
 
             WrongAnswers.Clear();
             if (Session != null)
             {
-                var questions = await _quizService.GetQuestionsAsync(TopicId, count: 100);
+                // TopicId == 0 means Quick Quiz; pass 0 to search the full question bank
+                var questions = await _quizService.GetQuestionsAsync(TopicId == 0 ? 0 : TopicId, count: 1000);
                 foreach (var answer in Session.Answers.Where(a => !a.IsCorrect))
                 {
                     var q = questions.FirstOrDefault(q => q.Id == answer.QuestionId);
@@ -72,7 +75,8 @@ public class QuizResultsViewModel : BaseViewModel
                             QuestionText = q.Text,
                             YourAnswer = string.IsNullOrEmpty(answer.SelectedAnswer) ? "(Time's up)" : answer.SelectedAnswer,
                             CorrectAnswer = q.CorrectAnswer,
-                            Explanation = q.Explanation
+                            Explanation = q.Explanation,
+                            ExampleCode = q.ExampleCode
                         });
                 }
             }
@@ -84,10 +88,28 @@ public class QuizResultsViewModel : BaseViewModel
     }
 }
 
-public class WrongAnswerItem
+public class WrongAnswerItem : BaseViewModel
 {
+    private bool _showCode;
+
     public string QuestionText { get; set; } = string.Empty;
     public string YourAnswer { get; set; } = string.Empty;
     public string CorrectAnswer { get; set; } = string.Empty;
     public string Explanation { get; set; } = string.Empty;
+    public string? ExampleCode { get; set; }
+
+    public bool HasExampleCode => ExampleCode != null;
+    public bool ShowCode
+    {
+        get => _showCode;
+        set { SetProperty(ref _showCode, value); OnPropertyChanged(nameof(ExampleCodeLinkText)); }
+    }
+    public string ExampleCodeLinkText => ShowCode ? "▴ Hide example" : "▾ Show example code";
+
+    public ICommand ToggleCodeCommand { get; }
+
+    public WrongAnswerItem()
+    {
+        ToggleCodeCommand = new Command(() => ShowCode = !ShowCode);
+    }
 }

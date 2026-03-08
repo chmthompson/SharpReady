@@ -1,4 +1,4 @@
-namespace DotNetStudyAssistant.Models.Enums;
+namespace SharpReady.Models.Enums;
 
 public enum CSharpCategory
 {

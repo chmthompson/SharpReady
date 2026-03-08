@@ -1,6 +1,6 @@
-using DotNetStudyAssistant.Models.Enums;
+using SharpReady.Models.Enums;
 
-namespace DotNetStudyAssistant.Models;
+namespace SharpReady.Models;
 
 public class Topic : BaseModel
 {

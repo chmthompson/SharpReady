@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
-             x:Class="DotNetStudyAssistant.Views.QuizResultsPage"
+             xmlns:vm="clr-namespace:SharpReady.ViewModels"
+             x:Class="SharpReady.Views.QuizResultsPage"
              x:DataType="vm:QuizResultsViewModel"
              Title="Results"
              Shell.NavBarIsVisible="False">
@@ -23,7 +23,7 @@
                            TextColor="White" HorizontalTextAlignment="Center"/>
                     <Label Text="{Binding ScoreLabel, StringFormat='Score: {0}'}"
                            FontSize="16" TextColor="White" HorizontalTextAlignment="Center"/>
-                    <Label Text="{Binding Topic.Name}"
+                    <Label Text="{Binding TopicDisplayName}"
                            FontSize="13" TextColor="White" HorizontalTextAlignment="Center" Opacity="0.8"/>
                 </VerticalStackLayout>
             </Border>
@@ -69,6 +69,23 @@
                                 <Label Text="{Binding Explanation}"
                                        FontSize="12" LineHeight="1.4"
                                        TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+
+                                <!-- Show example code toggle -->
+                                <Label Text="{Binding ExampleCodeLinkText}"
+                                       IsVisible="{Binding HasExampleCode}"
+                                       TextColor="{StaticResource Primary}"
+                                       TextDecorations="Underline"
+                                       FontSize="13" Margin="0,4,0,0">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleCodeCommand}"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Border StrokeShape="RoundRectangle 8" Padding="0"
+                                        BackgroundColor="{StaticResource CodeBackground}"
+                                        IsVisible="{Binding ShowCode}">
+                                    <Label Text="{Binding ExampleCode}"
+                                           Style="{StaticResource CodeLabel}"/>
+                                </Border>
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>

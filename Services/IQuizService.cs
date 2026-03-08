@@ -1,7 +1,7 @@
-using DotNetStudyAssistant.Models;
-using DotNetStudyAssistant.Models.Enums;
+using SharpReady.Models;
+using SharpReady.Models.Enums;
 
-namespace DotNetStudyAssistant.Services;
+namespace SharpReady.Services;
 
 public interface IQuizService
 {

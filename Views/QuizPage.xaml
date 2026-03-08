@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:DotNetStudyAssistant.ViewModels"
-             x:Class="DotNetStudyAssistant.Views.QuizPage"
+             xmlns:vm="clr-namespace:SharpReady.ViewModels"
+             x:Class="SharpReady.Views.QuizPage"
              x:DataType="vm:QuizViewModel"
              Title="Quiz"
              Shell.NavBarIsVisible="False">
@@ -95,6 +95,23 @@
                         <Label Text="{Binding CurrentQuestion.Explanation}"
                                FontSize="13" LineHeight="1.4"
                                TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"/>
+
+                        <!-- Show example code toggle (only for wrong answers with example code) -->
+                        <Label Text="{Binding ExampleCodeLinkText}"
+                               IsVisible="{Binding ShowExampleCodeLink}"
+                               TextColor="{StaticResource Primary}"
+                               TextDecorations="Underline"
+                               FontSize="13" Margin="0,4,0,0">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleExampleCodeCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Border StrokeShape="RoundRectangle 8" Padding="0"
+                                BackgroundColor="{StaticResource CodeBackground}"
+                                IsVisible="{Binding ShowExampleCode}">
+                            <Label Text="{Binding CurrentQuestion.ExampleCode}"
+                                   Style="{StaticResource CodeLabel}"/>
+                        </Border>
                     </VerticalStackLayout>
                 </Border>
 

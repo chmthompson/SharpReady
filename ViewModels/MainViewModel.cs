@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DotNetStudyAssistant.Models;
-using DotNetStudyAssistant.Services;
-using DotNetStudyAssistant.Utilities;
+using SharpReady.Models;
+using SharpReady.Services;
+using SharpReady.Utilities;
 
-namespace DotNetStudyAssistant.ViewModels;
+namespace SharpReady.ViewModels;
 
 /// <summary>
 /// ViewModel for the main page
@@ -17,7 +17,7 @@ public class MainViewModel : BaseViewModel
 
     private int _count;
     private bool _isBusy;
-    private string _title = "Welcome to DotNetStudyAssistant";
+    private string _title = "Welcome to SharpReady";
     private string _statusMessage = "Ready";
     private ObservableCollection<UserProfile> _users;
 

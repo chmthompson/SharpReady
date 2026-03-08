@@ -1,7 +1,7 @@
-using DotNetStudyAssistant.Models.Enums;
-using DotNetStudyAssistant.ViewModels;
+using SharpReady.Models.Enums;
+using SharpReady.ViewModels;
 
-namespace DotNetStudyAssistant.Views;
+namespace SharpReady.Views;
 
 [QueryProperty(nameof(TopicId), "TopicId")]
 [QueryProperty(nameof(Difficulty), "Difficulty")]

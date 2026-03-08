@@ -1,4 +1,4 @@
-namespace DotNetStudyAssistant.Services;
+namespace SharpReady.Services;
 
 /// <summary>
 /// Mock data service for development and testing

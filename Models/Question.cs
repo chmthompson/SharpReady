@@ -1,6 +1,6 @@
-using DotNetStudyAssistant.Models.Enums;
+using SharpReady.Models.Enums;
 
-namespace DotNetStudyAssistant.Models;
+namespace SharpReady.Models;
 
 public class Question : BaseModel
 {
@@ -11,5 +11,6 @@ public class Question : BaseModel
     public string[] Options { get; set; } = [];
     public string CorrectAnswer { get; set; } = string.Empty;
     public string Explanation { get; set; } = string.Empty;
+    public string? ExampleCode { get; set; }
     public DifficultyLevel Difficulty { get; set; }
 }

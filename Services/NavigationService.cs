@@ -1,4 +1,4 @@
-namespace DotNetStudyAssistant.Services;
+namespace SharpReady.Services;
 
 /// <summary>
 /// Implementation of navigation service using MAUI Shell routing

@@ -1,4 +1,4 @@
-namespace DotNetStudyAssistant.Models;
+namespace SharpReady.Models;
 
 public class QuizAnswer
 {

@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DotNetStudyAssistant.Models;
-using DotNetStudyAssistant.Models.Enums;
-using DotNetStudyAssistant.Services;
-using DotNetStudyAssistant.Utilities;
+using SharpReady.Models;
+using SharpReady.Models.Enums;
+using SharpReady.Services;
+using SharpReady.Utilities;
 
-namespace DotNetStudyAssistant.ViewModels;
+namespace SharpReady.ViewModels;
 
 public class TopicsViewModel : BaseViewModel
 {

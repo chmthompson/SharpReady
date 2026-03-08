@@ -1,8 +1,8 @@
 using System.Windows.Input;
-using DotNetStudyAssistant.Models.Enums;
-using DotNetStudyAssistant.Utilities;
+using SharpReady.Models.Enums;
+using SharpReady.Utilities;
 
-namespace DotNetStudyAssistant.ViewModels;
+namespace SharpReady.ViewModels;
 
 public class SettingsViewModel : BaseViewModel
 {

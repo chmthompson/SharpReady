@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell
-    x:Class="DotNetStudyAssistant.AppShell"
+    x:Class="SharpReady.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:views="clr-namespace:DotNetStudyAssistant.Views"
-    Title="DotNetStudyAssistant">
+    xmlns:views="clr-namespace:SharpReady.Views"
+    Title="SharpReady">
 
     <TabBar>
         <ShellContent
@@ -18,6 +18,12 @@
             Icon="book.png"
             ContentTemplate="{DataTemplate views:TopicsPage}"
             Route="Practice" />
+
+        <ShellContent
+            Title="Quick Quiz"
+            Icon="flash.png"
+            ContentTemplate="{DataTemplate views:QuickQuizPage}"
+            Route="QuickQuiz" />
 
         <ShellContent
             Title="Progress"

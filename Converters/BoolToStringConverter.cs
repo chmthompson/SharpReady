@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace DotNetStudyAssistant.Converters;
+namespace SharpReady.Converters;
 
 /// <summary>Returns TrueValue when value is true, FalseValue otherwise.</summary>
 public class BoolToStringConverter : IValueConverter

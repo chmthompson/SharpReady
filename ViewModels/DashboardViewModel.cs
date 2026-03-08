@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DotNetStudyAssistant.Models;
-using DotNetStudyAssistant.Services;
-using DotNetStudyAssistant.Utilities;
+using SharpReady.Models;
+using SharpReady.Services;
+using SharpReady.Utilities;
 
-namespace DotNetStudyAssistant.ViewModels;
+namespace SharpReady.ViewModels;
 
 public class DashboardViewModel : BaseViewModel
 {
@@ -22,18 +22,15 @@ public class DashboardViewModel : BaseViewModel
     public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
 
     public ObservableCollection<TopicWithProgress> WeakestAreas { get; } = [];
+    public bool IsWeakAreasEmpty => WeakestAreas.Count == 0;
 
     public ICommand LoadCommand { get; }
-    public ICommand GoToPracticeCommand { get; }
-    public ICommand QuickQuizCommand { get; }
 
     public DashboardViewModel(IQuizService quizService, INavigationService navigationService)
     {
         _quizService = quizService;
         _navigationService = navigationService;
         LoadCommand = new Command(async () => await LoadAsync());
-        GoToPracticeCommand = new Command(async () => await _navigationService.NavigateToAsync("//Practice"));
-        QuickQuizCommand = new Command(async () => await _navigationService.NavigateToAsync("//Practice"));
     }
 
     public async Task LoadAsync()
@@ -66,6 +63,8 @@ public class DashboardViewModel : BaseViewModel
 
             foreach (var item in weak)
                 WeakestAreas.Add(item);
+
+            OnPropertyChanged(nameof(IsWeakAreasEmpty));
         }
         finally
         {
