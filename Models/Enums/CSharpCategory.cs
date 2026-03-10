@@ -8,5 +8,6 @@ public enum CSharpCategory
     DesignPatterns,
     Collections,
     MemoryManagement,
-    DotNetFeatures
+    DotNetFeatures,
+    AspNetCore
 }

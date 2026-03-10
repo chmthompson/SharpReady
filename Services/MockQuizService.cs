@@ -94,6 +94,8 @@ public class MockQuizService : IQuizService
             Description = "GC, IDisposable, value vs reference types, boxing, and the LOH." },
         new() { Id = 7, Name = ".NET Modern Features", Category = CSharpCategory.DotNetFeatures,
             Description = "Records, pattern matching, nullable reference types, and primary constructors." },
+        new() { Id = 8, Name = "ASP.NET Core", Category = CSharpCategory.AspNetCore,
+            Description = "Web API design, middleware pipeline, authentication, versioning, and exception handling." },
     ];
 
     internal static List<Question> SeedQuestions() =>
@@ -3438,5 +3440,237 @@ public class MockQuizService : IQuizService
             ],
             CorrectAnswer = "The compiler prefers a params ReadOnlySpan<T> overload over params T[] to avoid heap allocations when calling with inline arguments",
             Explanation = "C# 13 extended 'params' to work with any type supporting collection expressions (ReadOnlySpan<T>, List<T>, etc.). When calling a method with 'params ReadOnlySpan<T>', the compiler can use a stack-allocated span instead of a heap array, eliminating the GC pressure of params T[] for small argument lists. Console.WriteLine overloads use this." },
+
+        // ── ASP.NET Core — Core Scenarios (TopicId = 8) ─────────────────────
+        new() { Id = 351, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Your Web API suddenly responds slowly under heavy traffic. What is the correct order of investigation and remediation?",
+            Options = [
+                "Immediately scale out to more servers and redeploy",
+                "Profile with dotnet-trace or Application Insights to locate the bottleneck, then address it with caching, async I/O, connection pooling, or query optimisation",
+                "Add Thread.Sleep delays to smooth out request spikes",
+                "Disable HTTPS to reduce TLS overhead"
+            ],
+            CorrectAnswer = "Profile with dotnet-trace or Application Insights to locate the bottleneck, then address it with caching, async I/O, connection pooling, or query optimisation",
+            Explanation = "Blind scaling is expensive and often ineffective. First use profiling tools (dotnet-trace, PerfView, Application Insights live metrics, MiniProfiler) to identify whether the bottleneck is CPU, I/O, database queries, or thread-pool starvation. Then apply targeted fixes: IMemoryCache/IDistributedCache for hot data, async/await throughout to free threads, connection pool tuning for databases, and efficient LINQ queries with pagination.",
+            ExampleCode = "// Register MiniProfiler in Program.cs\nbuilder.Services.AddMiniProfiler().AddEntityFramework();\n\n// Async controller — never blocks a thread-pool thread\n[HttpGet(\"{id}\")]\npublic async Task<IActionResult> GetOrder(int id)\n{\n    var order = await _db.Orders\n        .AsNoTracking()\n        .FirstOrDefaultAsync(o => o.Id == id);\n    return order is null ? NotFound() : Ok(order);\n}" },
+
+        new() { Id = 352, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "You need to secure an ASP.NET Core API consumed by multiple applications. What is the recommended authentication and authorisation design?",
+            Options = [
+                "Store a shared password in appsettings.json and compare it in every controller",
+                "Use JWT Bearer tokens issued by an identity provider, validate them with AddAuthentication/AddJwtBearer, and enforce access via policy-based authorisation",
+                "Rely on IP whitelisting as the sole security mechanism",
+                "Use Basic authentication over HTTP to keep it simple"
+            ],
+            CorrectAnswer = "Use JWT Bearer tokens issued by an identity provider, validate them with AddAuthentication/AddJwtBearer, and enforce access via policy-based authorisation",
+            Explanation = "Shared secrets are brittle and hard to rotate. The industry standard is JWT Bearer tokens (or OAuth 2.0 / OIDC flows for user-facing clients). The API validates the token signature and claims with AddJwtBearer; controllers or minimal-API endpoints declare policies via [Authorize(Policy = \"...\")] to enforce fine-grained access control without repeating logic.",
+            ExampleCode = "// Program.cs\nbuilder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)\n    .AddJwtBearer(o =>\n    {\n        o.Authority = \"https://identity.example.com\";\n        o.Audience  = \"my-api\";\n    });\n\nbuilder.Services.AddAuthorization(o =>\n    o.AddPolicy(\"AdminOnly\", p => p.RequireRole(\"admin\")));\n\n// Controller\n[Authorize(Policy = \"AdminOnly\")]\n[HttpDelete(\"{id}\")]\npublic async Task<IActionResult> Delete(int id) { ... }" },
+
+        new() { Id = 353, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Your API needs to support multiple versions without breaking existing clients. Which approach is considered best practice in ASP.NET Core?",
+            Options = [
+                "Create duplicate controller classes with different namespaces for each version",
+                "Use Asp.Versioning.Mvc (formerly Microsoft.AspNetCore.Mvc.Versioning) with URL-segment or header versioning, deprecating old versions gracefully",
+                "Accept a 'version' query string and use if-else branching inside each action method",
+                "Deploy a separate application per API version on different ports"
+            ],
+            CorrectAnswer = "Use Asp.Versioning.Mvc (formerly Microsoft.AspNetCore.Mvc.Versioning) with URL-segment or header versioning, deprecating old versions gracefully",
+            Explanation = "The Asp.Versioning.Mvc library (official Microsoft package) provides first-class versioning via [ApiVersion], [MapToApiVersion], and IApiVersionReader implementations for URL segments (/api/v2/orders), query strings, or custom headers. Old versions are marked [Obsolete] or [ApiVersion(\"1.0\", Deprecated = true)] and removed after a migration period, keeping backward compatibility without code duplication.",
+            ExampleCode = "// Program.cs\nbuilder.Services.AddApiVersioning(o =>\n{\n    o.DefaultApiVersion = new ApiVersion(1, 0);\n    o.AssumeDefaultVersionWhenUnspecified = true;\n    o.ReportApiVersions = true;\n    o.ApiVersionReader = new UrlSegmentApiVersionReader();\n});\n\n// Controllers\n[ApiController]\n[Route(\"api/v{version:apiVersion}/orders\")]\n[ApiVersion(\"1.0\", Deprecated = true)]\n[ApiVersion(\"2.0\")]\npublic class OrdersController : ControllerBase\n{\n    [HttpGet, MapToApiVersion(\"2.0\")]\n    public IActionResult GetV2() => Ok(\"v2 response\");\n}" },
+
+        new() { Id = 354, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Your application throws unhandled exceptions in production. What is the recommended global exception handling strategy in ASP.NET Core?",
+            Options = [
+                "Wrap every action method body in a try-catch block",
+                "Use UseExceptionHandler middleware (or IExceptionHandler in .NET 8+) to centralise error handling and return a consistent ProblemDetails response",
+                "Let exceptions propagate to the client so they can debug the issue",
+                "Use a global static try-catch in Main() and log to Console.Error"
+            ],
+            CorrectAnswer = "Use UseExceptionHandler middleware (or IExceptionHandler in .NET 8+) to centralise error handling and return a consistent ProblemDetails response",
+            Explanation = "Repeating try-catch in every action leads to inconsistent error responses and code duplication. UseExceptionHandler(\"/error\") catches all unhandled exceptions, while .NET 8 introduced IExceptionHandler for structured, composable handlers. Returning RFC 7807 ProblemDetails gives clients a standard error contract. Sensitive details should never leak to clients in production; log them server-side only.",
+            ExampleCode = "// Program.cs (.NET 8 approach)\nbuilder.Services.AddExceptionHandler<GlobalExceptionHandler>();\nbuilder.Services.AddProblemDetails();\napp.UseExceptionHandler();\n\n// GlobalExceptionHandler.cs\npublic class GlobalExceptionHandler : IExceptionHandler\n{\n    public async ValueTask<bool> TryHandleAsync(\n        HttpContext ctx, Exception ex, CancellationToken ct)\n    {\n        ctx.Response.StatusCode = ex is NotFoundException ? 404 : 500;\n        await ctx.Response.WriteAsJsonAsync(\n            new ProblemDetails { Title = \"An error occurred\", Detail = ex.Message }, ct);\n        return true;\n    }\n}" },
+
+        new() { Id = 355, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "You need to log every HTTP request and response across the application without repeating code in controllers. What is the cleanest approach?",
+            Options = [
+                "Copy-paste logging calls into every controller action",
+                "Implement a custom middleware that reads the request, calls next(), then captures the response — or use an action filter scoped to all controllers via a global filter registration",
+                "Override OnActionExecuting in every ControllerBase subclass",
+                "Use a static Logger class accessed directly from each action"
+            ],
+            CorrectAnswer = "Implement a custom middleware that reads the request, calls next(), then captures the response — or use an action filter scoped to all controllers via a global filter registration",
+            Explanation = "Middleware sits at the outermost layer and intercepts every request (including non-MVC endpoints), making it ideal for cross-cutting concerns like logging, timing, and correlation IDs. For MVC-specific scenarios (access to action name, model state), a globally registered IActionFilter is cleaner. Both avoid duplication: the logic lives in one place.",
+            ExampleCode = "// Middleware approach\npublic class RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> log)\n{\n    public async Task InvokeAsync(HttpContext ctx)\n    {\n        log.LogInformation(\"→ {Method} {Path}\", ctx.Request.Method, ctx.Request.Path);\n        var sw = Stopwatch.StartNew();\n        await next(ctx);\n        log.LogInformation(\"← {Status} in {Ms}ms\", ctx.Response.StatusCode, sw.ElapsedMilliseconds);\n    }\n}\n\n// Register\napp.UseMiddleware<RequestLoggingMiddleware>();" },
+
+        // ── ASP.NET Core — Middleware Scenarios (TopicId = 8) ───────────────
+        new() { Id = 356, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "You need to capture request and response logs for all APIs. Would you use middleware or filters? Why?",
+            Options = [
+                "Filters, because they run before middleware and have higher priority",
+                "Middleware, because it wraps the entire pipeline including non-MVC endpoints; filters only cover the MVC layer",
+                "Neither — use a database trigger to log requests",
+                "Filters, because they have direct access to HttpContext"
+            ],
+            CorrectAnswer = "Middleware, because it wraps the entire pipeline including non-MVC endpoints; filters only cover the MVC layer",
+            Explanation = "Middleware executes for every HTTP request regardless of whether it reaches an MVC controller, making it the right choice for application-wide cross-cutting concerns like logging, authentication, and CORS. Filters (IActionFilter, IResultFilter, etc.) run only inside the MVC pipeline and are better suited for controller/action-scoped concerns such as model validation or response shaping.",
+            ExampleCode = "// app.Use pipelines every request\napp.Use(async (ctx, next) =>\n{\n    // before\n    var body = await new StreamReader(ctx.Request.Body).ReadToEndAsync();\n    ctx.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));\n    logger.LogInformation(\"Request body: {Body}\", body);\n\n    await next();\n\n    // after\n    logger.LogInformation(\"Response: {Status}\", ctx.Response.StatusCode);\n});" },
+
+        new() { Id = 357, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Your application requires rate limiting to prevent API abuse. Where and how would you implement this?",
+            Options = [
+                "Add Thread.Sleep() inside each controller action to slow down requests",
+                "Use the built-in RateLimiter middleware (AddRateLimiter / UseRateLimiter) introduced in .NET 7, configuring policies such as fixed window, sliding window, or token bucket",
+                "Check a static counter in a base controller and throw an exception when exceeded",
+                "Handle rate limiting exclusively at the database layer with query throttling"
+            ],
+            CorrectAnswer = "Use the built-in RateLimiter middleware (AddRateLimiter / UseRateLimiter) introduced in .NET 7, configuring policies such as fixed window, sliding window, or token bucket",
+            Explanation = ".NET 7 introduced System.Threading.RateLimiting with first-class ASP.NET Core integration via AddRateLimiter. Policies (FixedWindowRateLimiter, SlidingWindowRateLimiter, TokenBucketRateLimiter, ConcurrencyLimiter) can be applied globally or per endpoint. The middleware short-circuits the pipeline with HTTP 429 when limits are exceeded, keeping the logic out of controllers.",
+            ExampleCode = "// Program.cs\nbuilder.Services.AddRateLimiter(o =>\n{\n    o.AddFixedWindowLimiter(\"api\", cfg =>\n    {\n        cfg.Window           = TimeSpan.FromSeconds(10);\n        cfg.PermitLimit      = 100;\n        cfg.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;\n        cfg.QueueLimit       = 5;\n    });\n    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;\n});\napp.UseRateLimiter();\n\n// Apply to a group\napp.MapGroup(\"/api\").RequireRateLimiting(\"api\");" },
+
+        new() { Id = 358, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "You need to validate specific API headers for every request before it reaches controllers. How would you design this using middleware?",
+            Options = [
+                "Add header validation logic inside every controller constructor",
+                "Write a custom middleware that inspects Request.Headers, returns a 400/401 response if validation fails, and calls next() only when headers are valid",
+                "Use a model binder to extract headers and validate inside each action",
+                "Create a base controller with a header-check method that subclasses must call manually"
+            ],
+            CorrectAnswer = "Write a custom middleware that inspects Request.Headers, returns a 400/401 response if validation fails, and calls next() only when headers are valid",
+            Explanation = "Middleware is the correct abstraction for request-pipeline short-circuiting. By not calling next() when validation fails the middleware prevents the request from ever reaching MVC, keeping controller code clean. The middleware is registered once and applies to all matched routes, enforcing the contract at the entry point.",
+            ExampleCode = "public class ApiKeyMiddleware(RequestDelegate next, IConfiguration config)\n{\n    private const string HeaderName = \"X-Api-Key\";\n\n    public async Task InvokeAsync(HttpContext ctx)\n    {\n        if (!ctx.Request.Headers.TryGetValue(HeaderName, out var key)\n            || key != config[\"ApiKey\"])\n        {\n            ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;\n            await ctx.Response.WriteAsync(\"Invalid or missing API key.\");\n            return; // short-circuit — next() is NOT called\n        }\n        await next(ctx);\n    }\n}" },
+
+        new() { Id = 359, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "A middleware is not executing as expected. How would you debug the pipeline order?",
+            Options = [
+                "Delete all middleware and add them back one by one until it works",
+                "Review registration order in Program.cs (order is significant), add diagnostic logging at each middleware step, and use app.UseRouting / app.UseAuthorization placement rules as a reference",
+                "Set breakpoints inside every controller and work backwards",
+                "Restart the server; middleware issues are always transient"
+            ],
+            CorrectAnswer = "Review registration order in Program.cs (order is significant), add diagnostic logging at each middleware step, and use app.UseRouting / app.UseAuthorization placement rules as a reference",
+            Explanation = "ASP.NET Core middleware executes in registration order. Common mistakes include placing UseAuthentication after UseAuthorization, or custom middleware after UseRouting when it needs route data. Add a thin logging middleware at various points to confirm execution and inspect HttpContext. The official docs show the canonical pipeline order: UseExceptionHandler → UseHsts → UseHttpsRedirection → UseStaticFiles → UseRouting → UseAuthentication → UseAuthorization → MapControllers.",
+            ExampleCode = "// Diagnostic middleware — temporary, for debugging\napp.Use(async (ctx, next) =>\n{\n    Console.WriteLine($\"[Before] Path: {ctx.Request.Path}\");\n    await next();\n    Console.WriteLine($\"[After]  Status: {ctx.Response.StatusCode}\");\n});\n\n// Canonical order\napp.UseExceptionHandler(\"/error\");\napp.UseAuthentication();\napp.UseAuthorization();\napp.MapControllers();" },
+
+        new() { Id = 360, TopicId = 8, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "You want to measure API response time for all endpoints for monitoring purposes. How would you implement this using middleware?",
+            Options = [
+                "Record DateTime.Now at the top and bottom of each controller action and calculate the difference",
+                "Create a middleware that starts a Stopwatch before calling next(), stops it after, then adds the elapsed time to a response header or metric store",
+                "Use Thread.CurrentThread.ManagedThreadId as a proxy for elapsed time",
+                "Enable verbose IIS logs and parse the time fields offline"
+            ],
+            CorrectAnswer = "Create a middleware that starts a Stopwatch before calling next(), stops it after, then adds the elapsed time to a response header or metric store",
+            Explanation = "A timing middleware is a textbook example of the middleware pattern. Stopwatch.StartNew() is called before next(); after the awaited call returns the elapsed value is available. Common outputs include an X-Response-Time-Ms header for debugging, structured log entries, or counters pushed to Prometheus/OpenTelemetry metrics. Because it wraps the entire downstream pipeline it captures total request time including routing, model binding, and action execution.",
+            ExampleCode = "public class TimingMiddleware(RequestDelegate next)\n{\n    public async Task InvokeAsync(HttpContext ctx)\n    {\n        var sw = Stopwatch.StartNew();\n        await next(ctx);\n        sw.Stop();\n        ctx.Response.Headers[\"X-Response-Time-Ms\"] =\n            sw.ElapsedMilliseconds.ToString();\n    }\n}\n\n// Program.cs — register before other middleware\napp.UseMiddleware<TimingMiddleware>();" },
+
+        // ── SOLID Principles — Senior Scenarios (TopicId = 1) ───────────────
+        new() { Id = 361, TopicId = 1, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "A class in your project handles database access logic, input validation, and business rules all in one place. Which SOLID principle is violated, and how would you refactor it?",
+            Options = [
+                "Open/Closed Principle — seal the class and add subclasses for each concern",
+                "Single Responsibility Principle — split the class into a repository for data access, a validator for validation, and a service for business rules",
+                "Liskov Substitution Principle — replace the class with an interface",
+                "Interface Segregation Principle — split the class into smaller interfaces"
+            ],
+            CorrectAnswer = "Single Responsibility Principle — split the class into a repository for data access, a validator for validation, and a service for business rules",
+            Explanation = "The Single Responsibility Principle (SRP) states that a class should have only one reason to change. A class mixing persistence, validation, and business logic has three distinct reasons to change: database schema changes, validation rule changes, and business rule changes. Refactor into an IRepository for data access, a validator (e.g., FluentValidation AbstractValidator<T>), and a domain/application service that orchestrates them.",
+            ExampleCode = "// Before — SRP violation\nclass OrderManager\n{\n    public void Process(Order o)\n    {\n        if (o.Total <= 0) throw new Exception(\"Invalid\"); // validation\n        _db.Save(o);                                       // persistence\n        _email.Send(o.CustomerEmail, \"Confirmed\");         // notification\n    }\n}\n\n// After — each class has one reason to change\nclass OrderValidator    { public bool IsValid(Order o) => o.Total > 0; }\nclass OrderRepository   { public void Save(Order o) => _db.Save(o); }\nclass OrderNotifier     { public void Notify(Order o) => _email.Send(...); }\nclass OrderService\n{\n    public void Process(Order o)\n    {\n        if (!_validator.IsValid(o)) throw new ValidationException();\n        _repo.Save(o);\n        _notifier.Notify(o);\n    }\n}" },
+
+        new() { Id = 362, TopicId = 1, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Your codebase requires modifying existing classes every time a new feature or payment method is added. Which SOLID principle should be applied, and how?",
+            Options = [
+                "Single Responsibility Principle — move all payment logic into one dedicated class",
+                "Open/Closed Principle — design classes to be open for extension (new subclasses or strategy implementations) but closed for modification",
+                "Dependency Inversion Principle — inject the payment class as a dependency",
+                "Liskov Substitution Principle — ensure all payment subclasses behave the same"
+            ],
+            CorrectAnswer = "Open/Closed Principle — design classes to be open for extension (new subclasses or strategy implementations) but closed for modification",
+            Explanation = "The Open/Closed Principle (OCP) states that software entities should be open for extension but closed for modification. Repeatedly editing a class for new features introduces regression risk. The fix is to define an abstraction (interface or abstract class) and add new behaviour by creating new implementations, not by changing existing code. Common approaches: Strategy pattern for swappable algorithms, inheritance for specialised behaviour, or plugin-style registrations.",
+            ExampleCode = "// OCP violation — adding PayPal requires editing ProcessPayment\nvoid ProcessPayment(string type, decimal amount)\n{\n    if (type == \"Card\") ChargeCard(amount);\n    else if (type == \"PayPal\") ChargePayPal(amount); // new else-if every time\n}\n\n// OCP-compliant — add a new provider without touching existing code\ninterface IPaymentProvider { void Charge(decimal amount); }\nclass CardProvider  : IPaymentProvider { public void Charge(decimal a) { ... } }\nclass PayPalProvider: IPaymentProvider { public void Charge(decimal a) { ... } }\n\nclass PaymentService(IPaymentProvider provider)\n{\n    public void Process(decimal amount) => provider.Charge(amount);\n}" },
+
+        new() { Id = 363, TopicId = 1, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "You have a large interface with many methods, but most implementing classes only use a small subset. Which SOLID principle is violated and how do you fix it?",
+            Options = [
+                "Single Responsibility Principle — merge all interfaces into one",
+                "Open/Closed Principle — mark unused methods as virtual",
+                "Interface Segregation Principle — split the fat interface into smaller, role-specific interfaces so classes only implement what they need",
+                "Dependency Inversion Principle — depend on the large interface through an abstract class"
+            ],
+            CorrectAnswer = "Interface Segregation Principle — split the fat interface into smaller, role-specific interfaces so classes only implement what they need",
+            Explanation = "The Interface Segregation Principle (ISP) states that no client should be forced to depend on methods it does not use. A 'fat' interface forces implementors to provide stub or throw-NotImplementedException bodies for irrelevant members, creating noise and coupling. Break it into cohesive role interfaces (e.g., IReadable, IWritable, IDeleteable) and compose as needed.",
+            ExampleCode = "// ISP violation — ReadOnlyReport must implement methods it doesn't use\ninterface IRepository\n{\n    T GetById(int id);\n    void Save(T entity);\n    void Delete(int id);\n    IEnumerable<T> GetAll();\n}\n\n// ISP-compliant\ninterface IReadRepository<T>  { T GetById(int id); IEnumerable<T> GetAll(); }\ninterface IWriteRepository<T> { void Save(T entity); void Delete(int id); }\ninterface IRepository<T> : IReadRepository<T>, IWriteRepository<T> { }\n\n// Read-only service only depends on what it needs\nclass ReportService(IReadRepository<Order> repo) { ... }" },
+
+        new() { Id = 364, TopicId = 1, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Your service class directly instantiates a concrete repository with 'new'. How would you redesign it using the Dependency Inversion Principle?",
+            Options = [
+                "Make the repository a static class so no instantiation is needed",
+                "Define an IRepository interface, inject it via the constructor, and register the concrete implementation in the DI container — the service depends on the abstraction, not the implementation",
+                "Move the 'new' call into a factory method inside the same service class",
+                "Use reflection to instantiate the repository at runtime to avoid the compile-time dependency"
+            ],
+            CorrectAnswer = "Define an IRepository interface, inject it via the constructor, and register the concrete implementation in the DI container — the service depends on the abstraction, not the implementation",
+            Explanation = "The Dependency Inversion Principle (DIP) has two rules: high-level modules should not depend on low-level modules — both should depend on abstractions; and abstractions should not depend on details. Using 'new ConcreteRepository()' inside a service tightly couples the two. Introducing an IRepository interface and injecting it via constructor injection (the standard in ASP.NET Core DI) decouples the service, makes it unit-testable with mocks, and allows swapping implementations without changing the service.",
+            ExampleCode = "// DIP violation\nclass OrderService\n{\n    private readonly SqlOrderRepository _repo = new(); // tightly coupled\n}\n\n// DIP-compliant\ninterface IOrderRepository\n{\n    Task<Order?> GetByIdAsync(int id);\n    Task SaveAsync(Order order);\n}\n\nclass OrderService(IOrderRepository repo) // depends on abstraction\n{\n    public async Task ProcessAsync(int id)\n    {\n        var order = await repo.GetByIdAsync(id);\n        ...\n    }\n}\n\n// Program.cs\nbuilder.Services.AddScoped<IOrderRepository, SqlOrderRepository>();" },
+
+        // ── Design Patterns — Senior Scenarios (TopicId = 4) ────────────────
+        new() { Id = 365, TopicId = 4, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Multiple services in your application contain the same database access logic. Which design pattern eliminates this duplication?",
+            Options = [
+                "Singleton — share one service instance across the application",
+                "Repository — centralise all data-access logic for an entity behind a single interface, consumed by any service that needs it",
+                "Observer — notify services when data changes",
+                "Facade — wrap the database with a simplified interface per service"
+            ],
+            CorrectAnswer = "Repository — centralise all data-access logic for an entity behind a single interface, consumed by any service that needs it",
+            Explanation = "The Repository pattern abstracts the persistence layer behind an interface (e.g., IOrderRepository). All query and command logic for a given entity lives in one place, eliminating duplication across services. It also decouples business logic from the ORM/database technology, making unit testing straightforward with mock repositories.",
+            ExampleCode = "// IOrderRepository.cs\npublic interface IOrderRepository\n{\n    Task<Order?> GetByIdAsync(int id);\n    Task<List<Order>> GetByCustomerAsync(int customerId);\n    Task SaveAsync(Order order);\n    Task DeleteAsync(int id);\n}\n\n// OrderRepository.cs — one place for all Order SQL/EF logic\npublic class OrderRepository(AppDbContext db) : IOrderRepository\n{\n    public Task<Order?> GetByIdAsync(int id) =>\n        db.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);\n\n    public Task SaveAsync(Order order)\n    {\n        db.Orders.Update(order);\n        return db.SaveChangesAsync();\n    }\n    // ...\n}" },
+
+        new() { Id = 366, TopicId = 4, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "You need to instantiate different object types dynamically based on conditions only known at runtime. Which design pattern is most appropriate?",
+            Options = [
+                "Singleton — return the same instance for every condition",
+                "Factory Method or Abstract Factory — encapsulate object creation logic so the calling code depends on an abstraction, not concrete types",
+                "Decorator — wrap an existing object with new behaviour",
+                "Observer — notify a factory object when conditions change"
+            ],
+            CorrectAnswer = "Factory Method or Abstract Factory — encapsulate object creation logic so the calling code depends on an abstraction, not concrete types",
+            Explanation = "Factory Method defines an interface for creating an object but lets subclasses decide which class to instantiate. Abstract Factory provides an interface for creating families of related objects. Both patterns move conditional creation logic (switch/if-else chains) out of client code into a dedicated factory, making it easy to add new types without modifying callers (OCP).",
+            ExampleCode = "// Factory Method via interface\npublic interface INotificationFactory\n{\n    INotification Create(string channel);\n}\n\npublic class NotificationFactory : INotificationFactory\n{\n    public INotification Create(string channel) => channel switch\n    {\n        \"email\" => new EmailNotification(),\n        \"sms\"   => new SmsNotification(),\n        \"push\"  => new PushNotification(),\n        _ => throw new ArgumentException($\"Unknown channel: {channel}\")\n    };\n}\n\n// Caller — never touches concrete types\nvar notification = factory.Create(userPreference);\nawait notification.SendAsync(message);" },
+
+        new() { Id = 367, TopicId = 4, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Your application requires exactly one instance of a configuration manager to be shared across the entire system. Which pattern is the correct fit?",
+            Options = [
+                "Prototype — clone the configuration object for each consumer",
+                "Singleton — ensure only one instance is created and provide a global access point",
+                "Factory Method — create a new configuration object on each request",
+                "Builder — construct the configuration step by step each time it is needed"
+            ],
+            CorrectAnswer = "Singleton — ensure only one instance is created and provide a global access point",
+            Explanation = "The Singleton pattern restricts a class to a single instance and provides a global access point to it, which is ideal for shared resources like configuration, logging, or connection pools. In ASP.NET Core the DI container manages lifetime: registering a service with AddSingleton<T>() is the idiomatic, thread-safe way to implement this pattern without manual locking.",
+            ExampleCode = "// Idiomatic ASP.NET Core singleton via DI (preferred over manual pattern)\nbuilder.Services.AddSingleton<IConfigurationManager, AppConfigurationManager>();\n\n// If you must implement the classic pattern:\npublic sealed class AppConfigurationManager\n{\n    private static readonly Lazy<AppConfigurationManager> _instance =\n        new(() => new AppConfigurationManager());\n\n    public static AppConfigurationManager Instance => _instance.Value;\n\n    private AppConfigurationManager() { /* load config */ }\n\n    public string GetSetting(string key) => ...\n}" },
+
+        new() { Id = 368, TopicId = 4, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "You want to add additional behaviour to an existing class (e.g., logging or caching) without modifying its source code. Which pattern applies?",
+            Options = [
+                "Strategy — swap the algorithm used by the class",
+                "Decorator — wrap the original object with a new class that adds behaviour while delegating core work to the wrapped instance",
+                "Singleton — create a shared instance with the additional behaviour",
+                "Template Method — override a base-class method to add the behaviour"
+            ],
+            CorrectAnswer = "Decorator — wrap the original object with a new class that adds behaviour while delegating core work to the wrapped instance",
+            Explanation = "The Decorator pattern attaches additional responsibilities to an object dynamically. A decorator implements the same interface as the component it wraps and delegates calls through, inserting behaviour before or after the delegation. This follows OCP — the original class is untouched. Common C# examples: caching decorators over repository interfaces, logging decorators over service interfaces, and Stream subclasses (BufferedStream, GZipStream).",
+            ExampleCode = "public interface IOrderRepository { Task<Order?> GetByIdAsync(int id); }\n\n// Original implementation\npublic class OrderRepository(AppDbContext db) : IOrderRepository\n{\n    public Task<Order?> GetByIdAsync(int id) =>\n        db.Orders.FindAsync(id).AsTask();\n}\n\n// Decorator — adds caching without touching OrderRepository\npublic class CachedOrderRepository(\n    IOrderRepository inner, IMemoryCache cache) : IOrderRepository\n{\n    public Task<Order?> GetByIdAsync(int id) =>\n        cache.GetOrCreateAsync($\"order:{id}\",\n            _ => inner.GetByIdAsync(id));\n}\n\n// Program.cs\nbuilder.Services.AddScoped<IOrderRepository>(\n    sp => new CachedOrderRepository(\n        new OrderRepository(sp.GetRequiredService<AppDbContext>()),\n        sp.GetRequiredService<IMemoryCache>()));" },
+
+        new() { Id = 369, TopicId = 4, Difficulty = DifficultyLevel.Senior, Type = QuestionType.MultipleChoice,
+            Text = "Your system needs multiple interchangeable algorithms for payment processing or pricing calculations. Which design pattern is the best fit?",
+            Options = [
+                "Observer — notify components when the pricing algorithm changes",
+                "Decorator — wrap the pricing class with additional calculation steps",
+                "Singleton — share one pricing algorithm instance across the system",
+                "Strategy — define a family of interchangeable algorithms behind a common interface and select the appropriate one at runtime"
+            ],
+            CorrectAnswer = "Strategy — define a family of interchangeable algorithms behind a common interface and select the appropriate one at runtime",
+            Explanation = "The Strategy pattern defines a family of algorithms, encapsulates each one, and makes them interchangeable. It lets the algorithm vary independently from the clients that use it. This is ideal for payment processors, pricing engines, sorting strategies, or any context where the behaviour must be selected dynamically. Combined with DI it integrates cleanly into ASP.NET Core — inject the desired IStrategy implementation based on configuration or user input.",
+            ExampleCode = "public interface IPricingStrategy { decimal Calculate(Order order); }\n\npublic class StandardPricing : IPricingStrategy\n    { public decimal Calculate(Order o) => o.Total; }\n\npublic class VipPricing : IPricingStrategy\n    { public decimal Calculate(Order o) => o.Total * 0.85m; } // 15% discount\n\npublic class SeasonalPricing : IPricingStrategy\n    { public decimal Calculate(Order o) => o.Total * 0.90m; }\n\npublic class CheckoutService(IPricingStrategy pricing)\n{\n    public decimal GetFinalPrice(Order order) => pricing.Calculate(order);\n}\n\n// Resolve strategy based on customer type\nvar strategy = customer.IsVip ? new VipPricing() : new StandardPricing();\nvar service = new CheckoutService(strategy);" },
     ];
 }
